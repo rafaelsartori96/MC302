@@ -2,24 +2,27 @@
  * Rafael Santos (RA: 186154)
  *
  * Questão 1:
- *  Não foi possível alterar o valor de alguma variável final, o código não é compilado.
+ *  O benefício da herança é a fácil organização de informações repetidas. Não há mais a necessidade de reescrever
+ *  tantos métodos. Não apenas facilidade ao escrever o código, há mais segurança, pois os tipos são organizados de
+ *  forma segura, sem se misturarem. Em C, por exemplo, uma struct pode ser definida com o nome "Cidade", possuindo um
+ *  ponteiro para vetor de caracteres (nome da cidade) e inteiro (população), outra strict definida como "Item" (para
+ *  uma loja, por exemplo), possuir os mesmos "atributos" (nome e quantidade, por exemplo), mas o compilador permite
+ *  você misturá-los pois os "atributos" são os mesmos na memória.
+ *  Além disso, há a sobreescrita de métodos que não são compatíveis, o que torna o uso de herança muito conveniente
+ *  para classes que não "combinam" tão bem.
  *
  * Questão 2:
- *  Sim, foi possível. É possível pois a variável final apenas impede escrita direta na variável, ou seja, proíbiria,
- *  por exemplo, a atribuição de outro Caronante à variável.
+ *  Uma classe final não pode possuir classes herdeiras. Sendo assim, o código não compila com a existência de
+ *  GrupoPrivado e GrupoPublico quando há a classe Grupo é final. Quando adicionamos final às outras classes, nada muda,
+ *  pois elas não são classes que são herdadas por outras.
  *
  * Questão 3:
- *  O comportamendo do programa não mudou pois, da maneira que tratávamos a variável, não havia a necessidade da
- *  variável não ser final. Afinal, a ArrayList redimensionaria a array interna, não necessitando reatribuir à
- *  caronantes alguma outra ArrayList. Da mesma forma, para o array, como há um máximo de ocupantes, não há a
- *  necessidade (senão economizar memória) de diminuir ou aumentar o vetor, o que dependeria de uma reatribuição também.
- *
- * Questão 4:
- *  Como não há alteração no número de ocupantes, os dois funcionariam eficientemente bem. A vantagem do ArrayList é
- *  redimensionar o vetor baseado no número de objetos presentes (para um ônibus vazio, por exemplo, não haveria um
- *  gasto excessivo de memória, pois enquanto a array teria todos espaços reservados, a ArrayList teria uma quantidade
- *  menor conforme desejasse o programador -- já que ArrayList permite a alteração de tamanho na construção e execução
- *  através de métodos desta coleção).
+ *  Em variáveis estáticas, prevalecem os atributos do tipo da variável. Ao contrário dos outros atributos de instância,
+ *  para atributos de instancia que foram ocultados, prevalece o atributo ocultado quando o tipo da variável é da classe
+ *  mãe ao invés da classe herdeira.
+ *  Por padrão, sempre o método mais "especializado", sempre o da classe herdeira é utilizado, então se utilizassemos um
+ *  getter, receberíamos o valor que "ocultou" o da classe mãe ao invés do que aconteceu com o "atributo livre". Ou
+ *  seja, haveria mais segurança.
  *
  */
 
@@ -28,7 +31,68 @@ import java.util.Scanner;
 
 public class Main {
 
+    /* Laboratório 4 */
     public static void main(String[] arguments) {
+        Perfil perfil = new Perfil('M', "12/12/2012", "Marília", "São Paulo", "00 14321-1321", false, 33.0D, 5);
+        Usuario usuario = new Usuario("Rafael", "rafael@email.com", "5555", true, perfil);
+        Caronante caronante = new Caronante(3, "Qualquer", "aaa-5452", "1144225566", "Fusca", "Wolks", 12, perfil);
+        Caroneiro caroneiro = new Caroneiro("12", perfil);
+
+        System.out.println(usuario.toString()); // imprime todas as informações
+
+        System.out.println(usuario.getPerfil() == perfil); // deve ser true
+        System.out.println(usuario.getPerfil().getCaronante() == caronante); // deve ser true
+        System.out.println(usuario.getPerfil().getCaroneiro() == caroneiro); // deve ser true
+        System.out.println(caronante.getPerfil() == perfil); // deve ser true
+        System.out.println(caroneiro.getPerfil() == perfil); // deve ser true
+        // De fato, todas foram true
+
+        Grupo grupo = new Grupo("Grupo massa", "mas não é spaghetti, é lasanha");
+        System.out.println(grupo.toString());
+
+        grupo.adicionarUsuario(usuario);
+
+        System.out.println(usuario.toString());
+        System.out.println(grupo.toString());
+
+
+        Grupo grupo2 = new Grupo("Grupo massa v2.0", "spaghetti > lasanha"); // será?
+        System.out.println(grupo2.toString());
+
+        Usuario usuario2 = new Usuario("Rafael 2", "rafael@emailfalso.com", "5555+1", false, perfil);
+        System.out.println(usuario2.toString());
+
+        Grupo a = new Grupo("grupo que será atribuido com b", "kmdsak");
+        GrupoPrivado b = new GrupoPrivado("grupo privado que será atribuido com c", "afas");
+        GrupoPrivado c = new GrupoPrivado("grupo privado alterado e atribuido", "afasdas");
+
+        c.testeNaoStatic++;
+
+        a = b;
+        b = c;
+
+        c.testeNaoStatic++;
+
+        System.out.println("Teste static: ");
+        System.out.println("a=" + a.testeStatic); // deve ser 21
+        System.out.println("b=" + b.testeStatic); // deve ser 32
+        System.out.println("c=" + c.testeStatic); // deve ser 32
+        // Ocorreu como esperado
+
+        System.out.println("Teste não static: ");
+        System.out.println("a=" + a.testeNaoStatic); // deve ser 33 pois é da classe grupoprivado
+        System.out.println("b=" + b.testeNaoStatic); // deve ser 35, pois é da classe grupoprivado e foi alterado
+        System.out.println("c=" + c.testeNaoStatic); // deve ser 35
+        // 'a' imprimiu 22, o que é surpreendente => por conta do atributo ocultar na classe herdeira
+
+        System.out.println(a.toString()); // todos os dados de b
+        System.out.println(b.toString()); // todos os dados de c
+        System.out.println(c.toString()); // todos os dados de c
+        // como esperado
+    }
+
+    /* Laboratório 3 */
+/*    public static void main(String[] arguments) {
         Caroneiro caroneiros[] = new Caroneiro[4];
         for (int i = 0; i < caroneiros.length; i++) {
             caroneiros[i] = new Caroneiro(true);
@@ -56,7 +120,7 @@ public class Main {
         System.out.println(carona.toString());
 
 
-        CaronaAL caronaAL = new CaronaAL(caronante);
+        Carona caronaAL = new CaronaAL(caronante);
         caronaAL.setHoraEncontro("13/03/2018 14:00");
         caronaAL.setLatitudeDestino(3.1415d);
         caronaAL.setLongitudeDestino(3.1415d);
@@ -68,9 +132,10 @@ public class Main {
         }
 
         System.out.println(caronaAL.toString());
-    }
+    }*/
 
-    public static void main_lab02(String[] arguments) {
+    /* Laboratório 2 */
+/*    public static void main(String[] arguments) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("[DADOS DO CARONANTE]");
@@ -114,9 +179,10 @@ public class Main {
 
         System.out.println("\nPronto!");
         System.out.println(caroneiro.toString());
-    }
+    }*/
 
-    public static void main_lab01(String[] arguments) {
+    /* Laboratório 1 */
+/*    public static void main(String[] arguments) {
         Usuario usuario1 = new Usuario(1, "Rafael Sartori",  "rafael.sartori96@gmail.com", "12345", false);
         Usuario usuario2 = new Usuario(2, "Yoda",  "yodaiam@gmail.com", "13452", true);
 
@@ -133,6 +199,6 @@ public class Main {
 
         System.out.println("Perfil #1: " + perfil1.toString());
         System.out.println("Perfil #2: " + perfil2.toString());
-    }
+    }*/
 
 }

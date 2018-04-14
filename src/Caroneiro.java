@@ -1,22 +1,16 @@
 public class Caroneiro {
 
     private String cartaoDeCrediito;
-    private boolean pagamentoEmDinheiro;
 
-    private static int numCaronantes = 0;
+    private Perfil perfil;
 
-
-    public Caroneiro(String cartaoDeCrediito, boolean pagamentoEmDinheiro) {
-        this.cartaoDeCrediito = cartaoDeCrediito;
-        this.pagamentoEmDinheiro = pagamentoEmDinheiro;
+    public Caroneiro(String cartaoDeCrediito) {
+        setCartaoDeCrediito(cartaoDeCrediito);
     }
 
-    public Caroneiro(boolean pagamentoEmDinheiro) {
-        this.pagamentoEmDinheiro = pagamentoEmDinheiro;
-    }
-
-    public Caroneiro() {
-        this.pagamentoEmDinheiro = false;
+    public Caroneiro(String cartaoDeCrediito, Perfil perfil) {
+        this(cartaoDeCrediito);
+        setPerfil(perfil);
     }
 
     public String getCartaoDeCrediito() {
@@ -27,22 +21,21 @@ public class Caroneiro {
         this.cartaoDeCrediito = cartaoDeCrediito;
     }
 
-    public boolean isPagamentoEmDinheiro() {
-        return pagamentoEmDinheiro;
+    public Perfil getPerfil() {
+        return perfil;
     }
 
-    public void setPagamentoEmDinheiro(boolean pagamentoEmDinheiro) {
-        this.pagamentoEmDinheiro = pagamentoEmDinheiro;
+    public void setPerfil(Perfil perfil) {
+        if(this.perfil != perfil) {
+            this.perfil = perfil;
+            perfil.setCaroneiro(this);
+        }
     }
 
     @Override
     public String toString() {
-        return "[DADOS DO CARONEIRO]\n" +
-                "cartaoDeCredito=" + getCartaoDeCrediito() + "\n" +
-                "pagamentoEmDinheiro=" + isPagamentoEmDinheiro() + "\n";
-    }
-
-    public static int getNumCaronantes() {
-        return numCaronantes;
+        return "Caroneiro:\n" +
+                "Cartão de crédito: " + getCartaoDeCrediito() + "\n"; // privacidade nula muahah
+                // "Perfil: " + getPerfil().toString() + "\n"; // loop (perfil.toString() imprime caroneiro.toString())
     }
 }

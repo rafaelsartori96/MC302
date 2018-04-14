@@ -1,23 +1,33 @@
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class Usuario {
 
-    private int id;
+    private final int id;
     private String nome, email, senha;
     private boolean status;
 
-    public Usuario(int id, String nome, String email, String senha, boolean status) {
-        this.id = id;
-        this.nome = nome;
-        this.email = email;
-        this.senha = senha;
-        this.status = status;
+    private final ArrayList<Grupo> grupos = new ArrayList<>();
+    private Perfil perfil;
+
+    private static int geradorId = 0;
+
+    public Usuario(String nome, String email, String senha, boolean status, Perfil perfil) {
+        this.id = Usuario.geradorId++;
+        setNome(nome);
+        setEmail(email);
+        setSenha(senha);
+        setStatus(status);
+        setPerfil(perfil);
+    }
+
+    public Usuario(String nome, String email, String senha, boolean status, Perfil perfil, Collection<Grupo> grupos) {
+        this(nome, email, senha, status, perfil);
+        getGrupos().addAll(grupos);
     }
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getNome() {
@@ -52,15 +62,37 @@ public class Usuario {
         this.status = status;
     }
 
+    public ArrayList<Grupo> getGrupos() {
+        return grupos;
+    }
+
+    public void adicionarGrupo(Grupo grupo) {
+        if(!getGrupos().contains(grupo)) {
+            getGrupos().add(grupo);
+            grupo.adicionarUsuario(this);
+        }
+    }
+
+    public Perfil getPerfil() {
+        return perfil;
+    }
+
+    public void setPerfil(Perfil perfil) {
+        this.perfil = perfil;
+    }
+
     @Override
     public String toString() {
-        return String.format(
-                "%s (id: %d)\nEmail: %s\nSenha: %s\nStatus: %b\n",
-                getNome(),
-                getId(),
-                getEmail(),
-                getSenha(),
-                getStatus()
-        );
+        String descricao = "Usuário id = " + getId() + "\n" +
+                "Nome: " + getNome() + "\n" +
+                "E-mail: " + getEmail() + "\n" +
+                "Senha: " + getSenha() + "\n" + // privacidade zero mesmo
+                "Status: " + getStatus() + "\n" +
+                "Perfil: " + getPerfil().toString() + "\n" +
+                (getGrupos().isEmpty() ? "Não possui grupos\n" : "Grupos:\n");
+        for(Grupo grupo : getGrupos()) {
+           descricao += grupo.toString();
+        }
+        return descricao;
     }
 }

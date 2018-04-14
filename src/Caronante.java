@@ -8,11 +8,38 @@ public class Caronante {
     private String marcaVeiculo;
     private int assentosDisponiveis;
 
-    private static int numCaroneiros = 0;
+    private Perfil perfil;
 
-
-    public Caronante(String carteiraMotorista) {
+    public Caronante(
+            int tempoHabilitacao,
+            String generoMusicalFavorito, String placaVeiculo,
+            String carteiraMotorista,
+            String modeloVeiculo, String marcaVeiculo,
+            int assentosDisponiveis
+    ) {
+        setTempoHabilitacao(tempoHabilitacao);
+        setGeneroMusicalFavorito(generoMusicalFavorito);
+        setPlacaVeiculo(placaVeiculo);
         this.carteiraMotorista = carteiraMotorista;
+        setModeloVeiculo(modeloVeiculo);
+        setMarcaVeiculo(marcaVeiculo);
+        setAssentosDisponiveis(assentosDisponiveis);
+    }
+
+    public Caronante(
+            int tempoHabilitacao,
+            String generoMusicalFavorito, String placaVeiculo,
+            String carteiraMotorista,
+            String modeloVeiculo, String marcaVeiculo,
+            int assentosDisponiveis,
+            Perfil perfil
+    ) {
+        this(
+                tempoHabilitacao,
+                generoMusicalFavorito,
+                placaVeiculo, carteiraMotorista, modeloVeiculo, marcaVeiculo, assentosDisponiveis
+        );
+        setPerfil(perfil);
     }
 
     public int getTempoHabilitacao() {
@@ -67,19 +94,31 @@ public class Caronante {
         this.assentosDisponiveis = assentosDisponiveis;
     }
 
-    @Override
-    public String toString() {
-        return "[DADOS DO CARONANTE]\n" +
-                "tempoHabilitacao=" + getTempoHabilitacao() + "\n" +
-                "generoMusicalPreferido=" + getGeneroMusicalFavorito() + "\n" +
-                "placaVeiculo=" + getPlacaVeiculo() + "\n" +
-                "carteiraMotorista=" + getCarteiraMotorista() + "\n" +
-                "marcaVeiculo=" + getMarcaVeiculo() + "\n" +
-                "modeloVeiculo=" + getModeloVeiculo() + "\n" +
-                "assentosDisponiveis=" + getAssentosDisponiveis() + "\n";
+    public Perfil getPerfil() {
+        return perfil;
     }
 
-    public static int getNumCaroneiros() {
-        return numCaroneiros;
+    public void setPerfil(Perfil perfil) {
+        if(this.perfil != perfil) {
+            this.perfil = perfil;
+            perfil.setCaronante(this);
+        }
+    }
+
+    public Carona oferecerCarona() {
+        return new Carona(this);
+    }
+
+    @Override
+    public String toString() {
+        return "Caronante:\n" +
+                "Tempo de habilitação: " + getTempoHabilitacao() + "\n" +
+                "Gênero músical favorito: " + getGeneroMusicalFavorito() + "\n" +
+                "Placa: " + getPlacaVeiculo() + "\n" +
+                "Número da carteira de motorista: " + getCarteiraMotorista() + "\n" +
+                "Marca: " + getMarcaVeiculo() + "\n" +
+                "Modelo: " + getModeloVeiculo() + "\n" +
+                "Assentos disponíveis: " + getAssentosDisponiveis() + "\n";
+                // "Perfil: " + getPerfil().toString() + "\n"; // loop => perfil.toString() utiliza caronante.toString()
     }
 }

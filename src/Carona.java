@@ -1,24 +1,22 @@
-import java.util.Arrays;
+import java.util.ArrayList;
 
 public class Carona {
 
-    private final Caroneiro[] caroneiros;
+    private final ArrayList<Caroneiro> caroneiros;
     private final Caronante caronante;
     private String horaEncontro;
     private double latitudeEncontro, longitudeEncontro;
     private double latitudeDestino, longitudeDestino;
     private int ocupacaoMaxima;
 
-    private int ocupacaoAtual = 0;
-
     public Carona(Caronante caronante) {
         // Não sei se essa era a ideia do construtor ou se ele devia ser mais completo..
         this.caronante = caronante;
         this.ocupacaoMaxima = caronante.getAssentosDisponiveis();
-        this.caroneiros = new Caroneiro[ocupacaoMaxima];
+        this.caroneiros = new ArrayList<>();
     }
 
-    public Caroneiro[] getCaroneiros() {
+    public ArrayList<Caroneiro> getCaroneiros() {
         return caroneiros;
     }
 
@@ -71,20 +69,20 @@ public class Carona {
     }
 
     public boolean caronaVazia() {
-        return this.ocupacaoAtual == 0;
+        return this.caroneiros.isEmpty();
     }
 
     public boolean adicionarCaroneiro(Caroneiro caroneiro) {
-        if(this.ocupacaoAtual >= this.ocupacaoMaxima) {
+        if(this.caroneiros.size() >= this.ocupacaoMaxima) {
             return false;
         }
 
-        this.caroneiros[this.ocupacaoAtual++] = caroneiro;
+        this.caroneiros.add(caroneiro);
         return true;
     }
 
     public boolean verificaOcupacao() {
-        return this.ocupacaoAtual > 0;
+        return !this.caroneiros.isEmpty();
     }
 
     @Override
@@ -98,6 +96,6 @@ public class Carona {
                 ", latitudeDestino=" + latitudeDestino +
                 ", longitudeDestino=" + longitudeDestino +
                 ", ocupacaoMaxima=" + ocupacaoMaxima +
-                ", caroneiros=" + Arrays.toString(caroneiros) + ")";
+                ", caroneiros=" + caroneiros.toString() + ")";
     }
 }
