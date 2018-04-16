@@ -105,8 +105,12 @@ public class Caronante {
         }
     }
 
-    public Carona oferecerCarona() {
-        return new Carona(this);
+    public CaronaPublica oferecerCaronaPublica() {
+        return new CaronaPublica(this);
+    }
+
+    public CaronaPrivada oferecerCaronaPrivada() {
+        return new CaronaPrivada(this);
     }
 
     @Override

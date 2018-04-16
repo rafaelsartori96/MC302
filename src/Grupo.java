@@ -1,9 +1,7 @@
 import java.util.ArrayList;
 
-public class Grupo {
-
-    public static int testeStatic = 21;
-    public int testeNaoStatic = 22;
+// Tornei abstract porque acredito que não há outra opção para o grupo senão ser privado ou público.
+public abstract class Grupo {
 
     private final int id;
     private String nome, descricao;

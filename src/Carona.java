@@ -1,19 +1,26 @@
 import java.util.ArrayList;
+import java.util.EnumSet;
 
+// Transformei a classe em abstrata pois acredito que não haja uma carona diferente de publica ou privada
+// Destransformei ela de abstrata apesar de não ver sentido
 public class Carona {
 
-    private final ArrayList<Caroneiro> caroneiros;
+    private final ArrayList<Caroneiro> caroneiros = new ArrayList<>();
     private final Caronante caronante;
-    private String horaEncontro;
+    private String horaDiaEncontro;
     private double latitudeEncontro, longitudeEncontro;
     private double latitudeDestino, longitudeDestino;
     private int ocupacaoMaxima;
+    private float valor;
+    // EnumSet são vetores binários para um enum, economiza memória, usei porque achei interessante na biblioteca :)
+    // Set somente implica que não há duplicatas, o que é de se esperar, sobretudo para este fim.
+    private final EnumSet<MetodoPagamento> metodoPagamentos;
 
     public Carona(Caronante caronante) {
         // Não sei se essa era a ideia do construtor ou se ele devia ser mais completo..
         this.caronante = caronante;
         this.ocupacaoMaxima = caronante.getAssentosDisponiveis();
-        this.caroneiros = new ArrayList<>();
+        this.metodoPagamentos = EnumSet.noneOf(MetodoPagamento.class);
     }
 
     public ArrayList<Caroneiro> getCaroneiros() {
@@ -24,12 +31,12 @@ public class Carona {
         return caronante;
     }
 
-    public String getHoraEncontro() {
-        return horaEncontro;
+    public String getHoraDiaEncontro() {
+        return horaDiaEncontro;
     }
 
-    public void setHoraEncontro(String horaEncontro) {
-        this.horaEncontro = horaEncontro;
+    public void setHoraDiaEncontro(String horaDiaEncontro) {
+        this.horaDiaEncontro = horaDiaEncontro;
     }
 
     public double getLatitudeEncontro() {
@@ -81,8 +88,31 @@ public class Carona {
         return true;
     }
 
-    public boolean verificaOcupacao() {
-        return !this.caroneiros.isEmpty();
+    public boolean removerCaroneiro(Caroneiro caroneiro) {
+        return this.caroneiros.remove(caroneiro);
+    }
+
+    /* Errei no laboratório 3 por conta do erro de digitação da Esther no enunciado, o laboratório 4 contém esse erro
+    * pois a correção foi divulgada mais tarde (na semana do laboratório 5), espero que não se incomodem com essa
+    * "propagação de erro". Enfim, o correto é dizer quantos usuários estão na carona. */
+    public int verificaOcupacao() {
+        return this.caroneiros.size();
+    }
+
+    public boolean adicionarFormaPagamento(MetodoPagamento metodoPagamento) {
+        return this.metodoPagamentos.add(metodoPagamento); // Por ser um set, não precisamos conferir por duplicatas
+    }
+
+    public boolean removerFormaPagamento(MetodoPagamento metodoPagamento) {
+        return this.metodoPagamentos.remove(metodoPagamento);
+    }
+
+    public boolean checarFormaPagamento(MetodoPagamento metodoPagamento) {
+        return this.metodoPagamentos.contains(metodoPagamento);
+    }
+
+    public boolean caronaGratuita() {
+        return this.metodoPagamentos.contains(MetodoPagamento.GRATIS);
     }
 
     @Override
@@ -90,12 +120,13 @@ public class Carona {
         return "Carona (" +
                 "vazio=" + caronaVazia() +
                 ", caronante=" + caronante +
-                ", horaEncontro='" + horaEncontro + "'" +
+                ", horaDiaEncontro='" + horaDiaEncontro + "'" +
                 ", latitudeEncontro=" + latitudeEncontro +
                 ", longitudeEncontro=" + longitudeEncontro +
                 ", latitudeDestino=" + latitudeDestino +
                 ", longitudeDestino=" + longitudeDestino +
                 ", ocupacaoMaxima=" + ocupacaoMaxima +
+                ", metodosPagamento=" + metodoPagamentos.toString() +
                 ", caroneiros=" + caroneiros.toString() + ")";
     }
 }

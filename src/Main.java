@@ -2,28 +2,14 @@
  * Rafael Santos (RA: 186154)
  *
  * Questão 1:
- *  O benefício da herança é a fácil organização de informações repetidas. Não há mais a necessidade de reescrever
- *  tantos métodos. Não apenas facilidade ao escrever o código, há mais segurança, pois os tipos são organizados de
- *  forma segura, sem se misturarem. Em C, por exemplo, uma struct pode ser definida com o nome "Cidade", possuindo um
- *  ponteiro para vetor de caracteres (nome da cidade) e inteiro (população), outra strict definida como "Item" (para
- *  uma loja, por exemplo), possuir os mesmos "atributos" (nome e quantidade, por exemplo), mas o compilador permite
- *  você misturá-los pois os "atributos" são os mesmos na memória.
- *  Além disso, há a sobreescrita de métodos que não são compatíveis, o que torna o uso de herança muito conveniente
- *  para classes que não "combinam" tão bem.
+ *  Um enum que é declarado public pode ser acessado por qualquer outra classe, dentro ou fora do package do enum. Ou
+ *  seja, não é o mesmo que um atributo declarado public (apesar de ter semelhanças a um atributo declarado como final),
+ *  mas sim o mesmo que (similar à) uma classe declarada public.
  *
  * Questão 2:
- *  Uma classe final não pode possuir classes herdeiras. Sendo assim, o código não compila com a existência de
- *  GrupoPrivado e GrupoPublico quando há a classe Grupo é final. Quando adicionamos final às outras classes, nada muda,
- *  pois elas não são classes que são herdadas por outras.
- *
- * Questão 3:
- *  Em variáveis estáticas, prevalecem os atributos do tipo da variável. Ao contrário dos outros atributos de instância,
- *  para atributos de instancia que foram ocultados, prevalece o atributo ocultado quando o tipo da variável é da classe
- *  mãe ao invés da classe herdeira.
- *  Por padrão, sempre o método mais "especializado", sempre o da classe herdeira é utilizado, então se utilizassemos um
- *  getter, receberíamos o valor que "ocultou" o da classe mãe ao invés do que aconteceu com o "atributo livre". Ou
- *  seja, haveria mais segurança.
- *
+ *  Enum permite comparações mais rápidas que uma String (que compararia caractere por caractere no caso de enumerações
+ *  com nomes parecidos), ocupa menos memória que uma String e, por fim, possui uma segurança contra modificações. Não
+ *  se pode adicionar ou remover enumerações senão quando o código é compilado.
  */
 
 
@@ -31,8 +17,39 @@ import java.util.Scanner;
 
 public class Main {
 
-    /* Laboratório 4 */
+    /* Laboratório 5 */
     public static void main(String[] arguments) {
+        Perfil perfil = new Perfil('M', "12/12/2012", "Marília", "São Paulo", "00 14321-1321", false, 33.0D, 5);
+        Usuario usuario = new Usuario("Rafael", "rafael@email.com", "5555", true, perfil);
+        Caronante caronante = new Caronante(3, "Qualquer", "aaa-5452", "1144225566", "Fusca", "Wolks", 12, perfil);
+
+        Carona carona = new Carona(caronante);
+        CaronaPrivada caronaPrivada = caronante.oferecerCaronaPrivada();
+        CaronaPublica caronaPublica = caronante.oferecerCaronaPublica();
+
+        Carona[] caronas = new Carona[] {carona, caronaPrivada, caronaPublica};
+
+        for(Carona carona_ : caronas) {
+            System.out.println(carona_);
+
+            carona_.adicionarFormaPagamento(MetodoPagamento.CARTAO_DE_CREDITO);
+            carona_.adicionarFormaPagamento(MetodoPagamento.DINHEIRO);
+
+            System.out.println(carona_.caronaGratuita());
+            System.out.println(carona_.checarFormaPagamento(MetodoPagamento.DINHEIRO));
+
+            carona_.removerFormaPagamento(MetodoPagamento.DINHEIRO);
+            carona_.adicionarFormaPagamento(MetodoPagamento.GRATIS);
+
+            System.out.println(carona_.checarFormaPagamento(MetodoPagamento.DINHEIRO));
+            System.out.println(carona_.caronaGratuita());
+
+            System.out.println(carona_);
+        }
+    }
+
+    /* Laboratório 4 */
+    /*public static void main(String[] arguments) {
         Perfil perfil = new Perfil('M', "12/12/2012", "Marília", "São Paulo", "00 14321-1321", false, 33.0D, 5);
         Usuario usuario = new Usuario("Rafael", "rafael@email.com", "5555", true, perfil);
         Caronante caronante = new Caronante(3, "Qualquer", "aaa-5452", "1144225566", "Fusca", "Wolks", 12, perfil);
@@ -89,7 +106,7 @@ public class Main {
         System.out.println(b.toString()); // todos os dados de c
         System.out.println(c.toString()); // todos os dados de c
         // como esperado
-    }
+    }*/
 
     /* Laboratório 3 */
 /*    public static void main(String[] arguments) {
@@ -107,7 +124,7 @@ public class Main {
         caronante.setGeneroMusicalFavorito("Qualquer");
 
         Carona carona = new Carona(caronante);
-        carona.setHoraEncontro("13/03/2018 14:00");
+        carona.setHoraDiaEncontro("13/03/2018 14:00");
         carona.setLatitudeDestino(3.1415d);
         carona.setLongitudeDestino(3.1415d);
         carona.setLatitudeEncontro(3.1415d + 1);
@@ -121,7 +138,7 @@ public class Main {
 
 
         Carona caronaAL = new CaronaAL(caronante);
-        caronaAL.setHoraEncontro("13/03/2018 14:00");
+        caronaAL.setHoraDiaEncontro("13/03/2018 14:00");
         caronaAL.setLatitudeDestino(3.1415d);
         caronaAL.setLongitudeDestino(3.1415d);
         caronaAL.setLatitudeEncontro(3.1415d + 1);
