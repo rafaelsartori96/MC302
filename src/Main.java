@@ -2,14 +2,33 @@
  * Rafael Santos (RA: 186154)
  *
  * Questão 1:
- *  Um enum que é declarado public pode ser acessado por qualquer outra classe, dentro ou fora do package do enum. Ou
- *  seja, não é o mesmo que um atributo declarado public (apesar de ter semelhanças a um atributo declarado como final),
- *  mas sim o mesmo que (similar à) uma classe declarada public.
+ *  A vantagem de uma relação bi-direcional é a disponibilidade de atributos em ambos os lados, permitindo diversos
+ *  recursos que poderiam ser impedidos caso a relação fosse unidirecional. As desvantagens é o controle complicado de
+ *  dados caso não seja constante (declarado como final) (pode facilitar o processo pois não há a necessidade de
+ *  atributos serem alterados para uma relação bidirecional fixa).
  *
  * Questão 2:
- *  Enum permite comparações mais rápidas que uma String (que compararia caractere por caractere no caso de enumerações
- *  com nomes parecidos), ocupa menos memória que uma String e, por fim, possui uma segurança contra modificações. Não
- *  se pode adicionar ou remover enumerações senão quando o código é compilado.
+ *  Não há necessidade de criar uma classe associativa. É possível colocar esses atributos na classe Carona, por
+ *  exemplo. A vantagem dessa abordagem é menor manipulação de novos objetos, menos tempo gasto pelo programa os
+ *  criando. A desvantagem é que perderia a explicidade da relação, já que essa "interface" contém os atributos que
+ *  convém à relação carona - caronante. Ou seja, colocando esses atributos na classe Carona, ficaria menos claro.
+ *
+ * Questão 3:
+ *  Há como criar essa consistência, mas é necessário um estudo sobre o que o programa irá precisar fazer. Por exemplo,
+ *  para a relação Usuário - Perfil, poderíamos utilizar uma relação 1:1 (da mesma forma que Carona - Caronante) e
+ *  tornar o atributo final, deixando para alguma das classes (fazendo mais sentido na Usuário) cuidar de criar a outra
+ *  durante a construção, de modo que há uma relação constante e clara durante toda a execução do programa.
+ *
+ *  No entanto, na maneira como as classes foram construídas atualmente e na maneira com que muitas aplicações
+ *  funcionam, é possível encontrar um instante de tempo em que o usuário pode não tem um perfil criado, o que pode
+ *  causar diversos erros na execução do programa. Neste laboratório, podemos notar que comparamos o identificador do
+ *  usuário ao atribuir uma nota. Se, por conta de um mal planejamento do programa, um usuário conseguisse receber uma
+ *  classe Caroneiro (o que é possível, já que essa relação não é bi-direcional), ao chegar no trecho da comparação,
+ *  haveria um NullPointerException, já que esse usuário hipotético não possui perfil associado ao seu Usuário.
+ *
+ *  Isso pode ser corrigido de várias maneiras como, por exemplo, criando o Perfil junto com o usuário (como várias
+ *  aplicações fazem), ou conferindo se o usuário possui perfil em qualquer acesso à getPerfil(), ou ainda criando uma
+ *  relação que torne necessária a existência de um perfil para a existência das classes Caronante e Caroneiro.
  */
 
 
@@ -17,8 +36,13 @@ import java.util.Scanner;
 
 public class Main {
 
-    /* Laboratório 5 */
+    /* Laboratório 6 */
     public static void main(String[] arguments) {
+
+    }
+
+    /* Laboratório 5 */
+    /*public static void main(String[] arguments) {
         Perfil perfil = new Perfil('M', "12/12/2012", "Marília", "São Paulo", "00 14321-1321", false, 33.0D, 5);
         Usuario usuario = new Usuario("Rafael", "rafael@email.com", "5555", true, perfil);
         Caronante caronante = new Caronante(3, "Qualquer", "aaa-5452", "1144225566", "Fusca", "Wolks", 12, perfil);
@@ -46,7 +70,7 @@ public class Main {
 
             System.out.println(carona_);
         }
-    }
+    }*/
 
     /* Laboratório 4 */
     /*public static void main(String[] arguments) {

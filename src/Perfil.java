@@ -1,10 +1,10 @@
 public class Perfil {
 
+    private Usuario usuario;
+
     private char sexo;
     private String dataNascimento, cidade, estado, telefone;
     private boolean fumante;
-    private double somaAvaliacoes;
-    private int numAvaliacoes;
 
     private Caronante caronante = null;
     private Caroneiro caroneiro = null;
@@ -21,8 +21,6 @@ public class Perfil {
         setEstado(estado);
         setTelefone(telefone);
         setFumante(fumante);
-        this.somaAvaliacoes = somaAvaliacoes;
-        this.numAvaliacoes = numAvaliacoes;
     }
 
     public Perfil(
@@ -58,6 +56,20 @@ public class Perfil {
         this(sexo, dataNascimento, cidade, estado, telefone, fumante, somaAvaliacoes, numAvaliacoes);
         setCaroneiro(caroneiro);
         setCaronante(caronante);
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        if(this.usuario != usuario) {
+            if(usuario != null)
+                usuario.setPerfil(this);
+            if(this.usuario != null)
+                this.usuario.setPerfil(null);
+        }
+        this.usuario = usuario;
     }
 
     public char getSexo() {
@@ -108,18 +120,6 @@ public class Perfil {
         this.fumante = fumante;
     }
 
-    public double getAvaliacao() {
-        if(numAvaliacoes > 0)
-            return (double) somaAvaliacoes / (double) numAvaliacoes;
-        else
-            return -1.0D;
-    }
-
-    public void setAvaliacao(double avaliacao) {
-        this.somaAvaliacoes += avaliacao;
-        this.numAvaliacoes++;
-    }
-
     public Caronante getCaronante() {
         return caronante;
     }
@@ -150,7 +150,6 @@ public class Perfil {
                 "Cidade, Estado: " + getCidade() + ", " + getEstado() + "\n" +
                 "Telefone: " + getTelefone() + "\n" +
                 "Fumante: " + isFumante() + "\n" +
-                "Avaliação: " + getAvaliacao() + "\n" +
                 "Perfil caronante: " + (getCaronante() == null ? "null" : getCaronante().toString()) + "\n" +
                 "Perfil caroneiro: " + (getCaroneiro() == null ? "null" : getCaroneiro().toString()) + "\n";
     }

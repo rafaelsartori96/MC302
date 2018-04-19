@@ -5,8 +5,8 @@ import java.util.EnumSet;
 // Destransformei ela de abstrata apesar de não ver sentido
 public class Carona {
 
-    private final ArrayList<Caroneiro> caroneiros = new ArrayList<>();
-    private final Caronante caronante;
+    private final ArrayList<CaronaCaroneiro> caroneiros = new ArrayList<>();
+    private final CaronaCaronante caronante;
     private String horaDiaEncontro;
     private double latitudeEncontro, longitudeEncontro;
     private double latitudeDestino, longitudeDestino;
@@ -18,16 +18,16 @@ public class Carona {
 
     public Carona(Caronante caronante) {
         // Não sei se essa era a ideia do construtor ou se ele devia ser mais completo..
-        this.caronante = caronante;
+        this.caronante = new CaronaCaronante(caronante, this);
         this.ocupacaoMaxima = caronante.getAssentosDisponiveis();
         this.metodoPagamentos = EnumSet.noneOf(MetodoPagamento.class);
     }
 
-    public ArrayList<Caroneiro> getCaroneiros() {
+    public ArrayList<CaronaCaroneiro> getCaroneiros() {
         return caroneiros;
     }
 
-    public Caronante getCaronante() {
+    public CaronaCaronante getCaronante() {
         return caronante;
     }
 
@@ -75,6 +75,18 @@ public class Carona {
         return ocupacaoMaxima;
     }
 
+    public void setOcupacaoMaxima(int ocupacaoMaxima) {
+        this.ocupacaoMaxima = ocupacaoMaxima;
+    }
+
+    public float getValor() {
+        return valor;
+    }
+
+    public void setValor(float valor) {
+        this.valor = valor;
+    }
+
     public boolean caronaVazia() {
         return this.caroneiros.isEmpty();
     }
@@ -84,12 +96,27 @@ public class Carona {
             return false;
         }
 
-        this.caroneiros.add(caroneiro);
+        for(CaronaCaroneiro caronaCaroneiro : this.caroneiros) {
+            if(caronaCaroneiro.getCaroneiro() == caroneiro) {
+                return false;
+            }
+        }
+
+        this.caroneiros.add(new CaronaCaroneiro(caroneiro, this));
         return true;
     }
 
     public boolean removerCaroneiro(Caroneiro caroneiro) {
-        return this.caroneiros.remove(caroneiro);
+        CaronaCaroneiro busca = null;
+        for(CaronaCaroneiro caronaCaroneiro : this.caroneiros) {
+            if(caronaCaroneiro.getCaroneiro() == caroneiro) {
+                busca = caronaCaroneiro;
+                break;
+            }
+        }
+
+        caroneiro.removerCarona(busca);
+        return this.caroneiros.remove(busca);
     }
 
     /* Errei no laboratório 3 por conta do erro de digitação da Esther no enunciado, o laboratório 4 contém esse erro
@@ -113,6 +140,21 @@ public class Carona {
 
     public boolean caronaGratuita() {
         return this.metodoPagamentos.contains(MetodoPagamento.GRATIS);
+    }
+
+    public boolean atribuirNotaCaroneiro(int id_caroneiro, float avaliacao) {
+        for(CaronaCaroneiro caronaCaroneiro : this.caroneiros) {
+            if(caronaCaroneiro.getCaroneiro().getPerfil().getUsuario().getId() == id_caroneiro) {
+                caronaCaroneiro.setAvaliacao(avaliacao);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void atribuirNotaCaronante(float avaliacao) {
+        /* Sempre temos um caronante */
+        this.caronante.setAvaliacao(avaliacao);
     }
 
     @Override

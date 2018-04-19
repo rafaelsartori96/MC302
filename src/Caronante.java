@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Caronante {
 
     private int tempoHabilitacao;
@@ -9,6 +11,8 @@ public class Caronante {
     private int assentosDisponiveis;
 
     private Perfil perfil;
+
+    private final ArrayList<CaronaCaronante> caronas = new ArrayList<>();
 
     public Caronante(
             int tempoHabilitacao,
@@ -105,12 +109,29 @@ public class Caronante {
         }
     }
 
+    public float getAvaliacao() {
+        if(this.caronas.isEmpty()) {
+            return -1.0F;
+        }
+
+        float soma = 0.0F;
+        for(CaronaCaronante caronaCaronante : this.caronas) {
+            soma = caronaCaronante.getAvaliacao();
+        }
+
+        return soma / this.caronas.size();
+    }
+
     public CaronaPublica oferecerCaronaPublica() {
-        return new CaronaPublica(this);
+        CaronaPublica caronaPublica = new CaronaPublica(this);
+        this.caronas.add(caronaPublica.getCaronante());
+        return caronaPublica;
     }
 
     public CaronaPrivada oferecerCaronaPrivada() {
-        return new CaronaPrivada(this);
+        CaronaPrivada caronaPrivada = new CaronaPrivada(this);
+        this.caronas.add(caronaPrivada.getCaronante());
+        return caronaPrivada;
     }
 
     @Override

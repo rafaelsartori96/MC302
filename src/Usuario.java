@@ -12,17 +12,16 @@ public class Usuario {
 
     private static int geradorId = 0;
 
-    public Usuario(String nome, String email, String senha, boolean status, Perfil perfil) {
+    public Usuario(String nome, String email, String senha, boolean status) {
         this.id = Usuario.geradorId++;
         setNome(nome);
         setEmail(email);
         setSenha(senha);
         setStatus(status);
-        setPerfil(perfil);
     }
 
-    public Usuario(String nome, String email, String senha, boolean status, Perfil perfil, Collection<Grupo> grupos) {
-        this(nome, email, senha, status, perfil);
+    public Usuario(String nome, String email, String senha, boolean status, Collection<Grupo> grupos) {
+        this(nome, email, senha, status);
         getGrupos().addAll(grupos);
     }
 
@@ -78,6 +77,12 @@ public class Usuario {
     }
 
     public void setPerfil(Perfil perfil) {
+        if(this.perfil != perfil) {
+            if(perfil != null)
+                perfil.setUsuario(this);
+            if(this.perfil != null)
+                this.perfil.setUsuario(null);
+        }
         this.perfil = perfil;
     }
 

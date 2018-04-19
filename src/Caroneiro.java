@@ -1,8 +1,12 @@
+import java.util.ArrayList;
+
 public class Caroneiro {
 
     private String cartaoDeCrediito;
 
     private Perfil perfil;
+
+    private final ArrayList<CaronaCaroneiro> caronas = new ArrayList<>();
 
     public Caroneiro(String cartaoDeCrediito) {
         setCartaoDeCrediito(cartaoDeCrediito);
@@ -30,6 +34,28 @@ public class Caroneiro {
             this.perfil = perfil;
             perfil.setCaroneiro(this);
         }
+    }
+
+    public void adicionarCarona(CaronaCaroneiro caronaCaroneiro) {
+        // Deixamos a carona cuidar da lógica
+        this.caronas.add(caronaCaroneiro);
+    }
+
+    public void removerCarona(CaronaCaroneiro caronaCaroneiro) {
+        this.caronas.remove(caronaCaroneiro);
+    }
+
+    public float getAvaliacao() {
+        if(this.caronas.isEmpty()) {
+            return -1.0F;
+        }
+
+        float soma = 0.0F;
+        for(CaronaCaroneiro caronaCaroneiro: this.caronas) {
+            soma = caronaCaroneiro.getAvaliacao();
+        }
+
+        return soma / this.caronas.size();
     }
 
     @Override
