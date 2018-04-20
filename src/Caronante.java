@@ -140,10 +140,10 @@ public class Caronante {
                 "Tempo de habilitação: " + getTempoHabilitacao() + "\n" +
                 "Gênero músical favorito: " + getGeneroMusicalFavorito() + "\n" +
                 "Placa: " + getPlacaVeiculo() + "\n" +
+                "Avaliação: " + getAvaliacao() + "\n" +
                 "Número da carteira de motorista: " + getCarteiraMotorista() + "\n" +
                 "Marca: " + getMarcaVeiculo() + "\n" +
                 "Modelo: " + getModeloVeiculo() + "\n" +
                 "Assentos disponíveis: " + getAssentosDisponiveis() + "\n";
-                // "Perfil: " + getPerfil().toString() + "\n"; // loop => perfil.toString() utiliza caronante.toString()
     }
 }

@@ -32,13 +32,55 @@
  */
 
 
-import java.util.Scanner;
-
 public class Main {
 
     /* Laboratório 6 */
     public static void main(String[] arguments) {
+        Perfil perfilCaronante = new Perfil('M', "12/12/2012", "Marília", "São Paulo", "00 14321-1321", false);
+        Usuario usuarioCaronante = new Usuario("Rafael", "rafael@email.com", "5555", true);
+        usuarioCaronante.setPerfil(perfilCaronante);
+        Caronante caronante = new Caronante(3, "Qualquer", "aaa-5452", "1144225566", "Fusca", "Wolks", 12, perfilCaronante);
 
+
+        Perfil[] perfisCaroneiros = new Perfil[]{
+                new Perfil('M', "12/12/2012", "Marília", "São Paulo", "5", false),
+                new Perfil('M', "12/12/2012", "Marília", "São Paulo", "7", false),
+                new Perfil('M', "12/12/2012", "Marília", "São Paulo", "9", false)
+        };
+        Usuario[] usuariosCaroneiros = new Usuario[]{
+                new Usuario("Caroneiro1", "rafael@email.com", "5555", true),
+                new Usuario("Caroneiro2", "rafael@email.com", "5555", true),
+                new Usuario("Caroneiro3", "rafael@email.com", "5555", true)
+        };
+        Caroneiro[] caroneiros = new Caroneiro[]{
+                new Caroneiro("213"),
+                new Caroneiro("216"),
+                new Caroneiro("219")
+        };
+
+        CaronaPublica carona = caronante.oferecerCaronaPublica();
+
+        for(int i = 0; i < 3; i++) {
+            System.out.println("ID = " + usuariosCaroneiros[i].getId());
+            perfisCaroneiros[i].setUsuario(usuariosCaroneiros[i]);
+            perfisCaroneiros[i].setCaroneiro(caroneiros[i]);
+            carona.adicionarCaroneiro(perfisCaroneiros[i].getCaroneiro());
+        }
+
+        System.out.println(carona.atribuirNotaCaroneiro(0, 5.3F)); // deve ser false (é o caronante)
+        System.out.println(carona.atribuirNotaCaroneiro(1, 9.3F));
+        System.out.println(carona.atribuirNotaCaroneiro(2, 7.3F));
+        System.out.println(carona.atribuirNotaCaroneiro(3, 6.3F));
+        System.out.println(carona.atribuirNotaCaroneiro(4, 6.8F)); // deve ser false (não existe)
+        carona.atribuirNotaCaronante(6.5F);
+
+        System.out.println(carona.toString());
+        System.out.println(caronante.toString());
+
+        System.out.println(usuarioCaronante.toString());
+        for(Usuario usuario : usuariosCaroneiros) {
+            System.out.println(usuario.toString());
+        }
     }
 
     /* Laboratório 5 */

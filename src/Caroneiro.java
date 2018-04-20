@@ -61,7 +61,7 @@ public class Caroneiro {
     @Override
     public String toString() {
         return "Caroneiro:\n" +
-                "Cartão de crédito: " + getCartaoDeCrediito() + "\n"; // privacidade nula muahah
-                // "Perfil: " + getPerfil().toString() + "\n"; // loop (perfil.toString() imprime caroneiro.toString())
+                "Cartão de crédito: " + getCartaoDeCrediito() + "\n" +
+                "Avaliação: " + getAvaliacao() + "\n";
     }
 }

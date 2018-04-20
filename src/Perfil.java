@@ -12,8 +12,7 @@ public class Perfil {
     public Perfil(
             char sexo,
             String dataNascimento, String cidade, String estado, String telefone,
-            boolean fumante,
-            double somaAvaliacoes, int numAvaliacoes
+            boolean fumante
     ) {
         setSexo(sexo);
         setDataNascimento(dataNascimento);
@@ -27,10 +26,9 @@ public class Perfil {
             char sexo,
             String dataNascimento, String cidade, String estado, String telefone,
             boolean fumante,
-            double somaAvaliacoes, int numAvaliacoes,
             Caroneiro caroneiro
     ) {
-        this(sexo, dataNascimento, cidade, estado, telefone, fumante, somaAvaliacoes, numAvaliacoes);
+        this(sexo, dataNascimento, cidade, estado, telefone, fumante);
         setCaroneiro(caroneiro);
     }
 
@@ -38,10 +36,9 @@ public class Perfil {
             char sexo,
             String dataNascimento, String cidade, String estado, String telefone,
             boolean fumante,
-            double somaAvaliacoes, int numAvaliacoes,
             Caronante caronante
     ) {
-        this(sexo, dataNascimento, cidade, estado, telefone, fumante, somaAvaliacoes, numAvaliacoes);
+        this(sexo, dataNascimento, cidade, estado, telefone, fumante);
         setCaronante(caronante);
     }
 
@@ -49,11 +46,10 @@ public class Perfil {
             char sexo,
             String dataNascimento, String cidade, String estado, String telefone,
             boolean fumante,
-            double somaAvaliacoes, int numAvaliacoes,
             Caroneiro caroneiro,
             Caronante caronante
     ) {
-        this(sexo, dataNascimento, cidade, estado, telefone, fumante, somaAvaliacoes, numAvaliacoes);
+        this(sexo, dataNascimento, cidade, estado, telefone, fumante);
         setCaroneiro(caroneiro);
         setCaronante(caronante);
     }
@@ -63,13 +59,17 @@ public class Perfil {
     }
 
     public void setUsuario(Usuario usuario) {
+        // Se não está atualizado para o Perfil
         if(this.usuario != usuario) {
-            if(usuario != null)
-                usuario.setPerfil(this);
+            // Removemos o "link" do perfil desatualizado
             if(this.usuario != null)
                 this.usuario.setPerfil(null);
+            // Atualizamos o perfil
+            this.usuario = usuario;
+            // Atribuimos o perfil ao usuário se não está atualizado para o Usuário
+            if(usuario != null && usuario.getPerfil() != this)
+                usuario.setPerfil(this);
         }
-        this.usuario = usuario;
     }
 
     public char getSexo() {
@@ -150,6 +150,7 @@ public class Perfil {
                 "Cidade, Estado: " + getCidade() + ", " + getEstado() + "\n" +
                 "Telefone: " + getTelefone() + "\n" +
                 "Fumante: " + isFumante() + "\n" +
+                "Usuário: " + getUsuario().getId() + "\n" +
                 "Perfil caronante: " + (getCaronante() == null ? "null" : getCaronante().toString()) + "\n" +
                 "Perfil caroneiro: " + (getCaroneiro() == null ? "null" : getCaroneiro().toString()) + "\n";
     }

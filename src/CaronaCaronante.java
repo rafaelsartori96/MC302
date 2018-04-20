@@ -28,6 +28,6 @@ public class CaronaCaronante {
 
     @Override
     public String toString() {
-        return "Carona " + getCarona().toString() + " <-> Caronante (" + getCaronante().toString() + ")";
+        return "Carona <-> Caronante (" + getCaronante().toString() + ")";
     }
 }

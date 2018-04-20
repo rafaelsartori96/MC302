@@ -30,6 +30,6 @@ public class CaronaCaroneiro {
 
     @Override
     public String toString() {
-        return "Carona " + getCarona().toString() + " <-> Caroneiro (" + getCaroneiro().toString() + ")";
+        return "Carona <-> Caroneiro (" + getCaroneiro().toString() + ")";
     }
 }

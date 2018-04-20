@@ -77,13 +77,17 @@ public class Usuario {
     }
 
     public void setPerfil(Perfil perfil) {
+        // Se está desatualizado
         if(this.perfil != perfil) {
-            if(perfil != null)
-                perfil.setUsuario(this);
+            // Atualizamos o perfil antigo
             if(this.perfil != null)
                 this.perfil.setUsuario(null);
+            // Mudamos de perfil
+            this.perfil = perfil;
+            // Atualizamos o perfil se ele está desatualizado
+            if(perfil != null && perfil.getUsuario() != this)
+                perfil.setUsuario(this);
         }
-        this.perfil = perfil;
     }
 
     @Override
@@ -93,7 +97,7 @@ public class Usuario {
                 "E-mail: " + getEmail() + "\n" +
                 "Senha: " + getSenha() + "\n" + // privacidade zero mesmo
                 "Status: " + getStatus() + "\n" +
-                "Perfil: " + getPerfil().toString() + "\n" +
+                "Perfil: " + getPerfil() + "\n" +
                 (getGrupos().isEmpty() ? "Não possui grupos\n" : "Grupos:\n");
         for(Grupo grupo : getGrupos()) {
            descricao += grupo.toString();
