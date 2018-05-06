@@ -1,7 +1,17 @@
 public class GrupoPrivado extends Grupo {
 
-    public GrupoPrivado(String nome, String descricao) {
-        super(nome, descricao);
+    public GrupoPrivado(Usuario dono, String nome, String descricao) {
+        super(dono, nome, descricao);
+    }
+
+    @Override
+    public void adicionarUsuario(Usuario usuario) {
+
+    }
+
+    @Override
+    public void removeUsuario(Usuario usuario) {
+
     }
 
     @Override

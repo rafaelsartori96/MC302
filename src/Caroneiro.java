@@ -36,6 +36,10 @@ public class Caroneiro {
         }
     }
 
+    public boolean pedirCarona(Carona carona) {
+        return false;
+    }
+
     public void adicionarCarona(CaronaCaroneiro caronaCaroneiro) {
         // Deixamos a carona cuidar da lógica
         this.caronas.add(caronaCaroneiro);

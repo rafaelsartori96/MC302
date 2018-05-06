@@ -1,26 +1,21 @@
 import java.util.ArrayList;
 import java.util.EnumSet;
 
-// Transformei a classe em abstrata pois acredito que não haja uma carona diferente de publica ou privada
-// Destransformei ela de abstrata apesar de não ver sentido
-public class Carona {
+public abstract class Carona {
 
     private final ArrayList<CaronaCaroneiro> caroneiros = new ArrayList<>();
+    private final EnumSet<MetodoPagamento> metodoPagamentos = EnumSet.noneOf(MetodoPagamento.class);
     private final CaronaCaronante caronante;
+
     private String horaDiaEncontro;
     private double latitudeEncontro, longitudeEncontro;
     private double latitudeDestino, longitudeDestino;
     private int ocupacaoMaxima;
     private float valor;
-    // EnumSet são vetores binários para um enum, economiza memória, usei porque achei interessante na biblioteca :)
-    // Set somente implica que não há duplicatas, o que é de se esperar, sobretudo para este fim.
-    private final EnumSet<MetodoPagamento> metodoPagamentos;
 
     public Carona(Caronante caronante) {
-        // Não sei se essa era a ideia do construtor ou se ele devia ser mais completo..
         this.caronante = new CaronaCaronante(caronante, this);
         this.ocupacaoMaxima = caronante.getAssentosDisponiveis();
-        this.metodoPagamentos = EnumSet.noneOf(MetodoPagamento.class);
     }
 
     public ArrayList<CaronaCaroneiro> getCaroneiros() {
@@ -91,42 +86,32 @@ public class Carona {
         return this.caroneiros.isEmpty();
     }
 
-    public boolean adicionarCaroneiro(Caroneiro caroneiro) {
-        if(this.caroneiros.size() >= this.ocupacaoMaxima) {
-            return false;
-        }
-
-        for(CaronaCaroneiro caronaCaroneiro : this.caroneiros) {
-            if(caronaCaroneiro.getCaroneiro() == caroneiro) {
-                return false;
-            }
-        }
-
-        this.caroneiros.add(new CaronaCaroneiro(caroneiro, this));
-        return true;
-    }
+    public abstract boolean adicionarCaroneiro(Caroneiro caroneiro);
 
     public boolean removerCaroneiro(Caroneiro caroneiro) {
-        CaronaCaroneiro busca = null;
-        for(CaronaCaroneiro caronaCaroneiro : this.caroneiros) {
-            if(caronaCaroneiro.getCaroneiro() == caroneiro) {
-                busca = caronaCaroneiro;
-                break;
+        for (int i = 0; i < getCaroneiros().size(); i++) {
+            CaronaCaroneiro caronaCaroneiro = getCaroneiros().get(i);
+            if (caronaCaroneiro.getCaroneiro().equals(caroneiro)) {
+                caroneiro.removerCarona(caronaCaroneiro);
+                getCaroneiros().remove(i);
+                return true;
             }
         }
-
-        caroneiro.removerCarona(busca);
-        return this.caroneiros.remove(busca);
+        return false;
     }
 
-    /* Errei no laboratório 3 por conta do erro de digitação da Esther no enunciado, o laboratório 4 contém esse erro
-    * pois a correção foi divulgada mais tarde (na semana do laboratório 5), espero que não se incomodem com essa
-    * "propagação de erro". Enfim, o correto é dizer quantos usuários estão na carona. */
     public int verificaOcupacao() {
         return this.caroneiros.size();
     }
 
+    /*
+     * Havia assumido no laboratório 5 que uma carona pode ser de graça porém ainda aceitar outros métodos de pagamento,
+     * como se fosse uma carona de pagamento opcional, mas está errado.
+     */
     public boolean adicionarFormaPagamento(MetodoPagamento metodoPagamento) {
+        if(metodoPagamento.possuiCusto()) {
+            removerFormaPagamento(MetodoPagamento.GRATIS);
+        }
         return this.metodoPagamentos.add(metodoPagamento); // Por ser um set, não precisamos conferir por duplicatas
     }
 
@@ -139,7 +124,7 @@ public class Carona {
     }
 
     public boolean caronaGratuita() {
-        return this.metodoPagamentos.contains(MetodoPagamento.GRATIS);
+        return this.metodoPagamentos.isEmpty() || this.metodoPagamentos.contains(MetodoPagamento.GRATIS);
     }
 
     public boolean atribuirNotaCaroneiro(int id_caroneiro, float avaliacao) {

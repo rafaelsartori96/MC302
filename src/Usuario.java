@@ -7,7 +7,7 @@ public class Usuario {
     private String nome, email, senha;
     private boolean status;
 
-    private final ArrayList<Grupo> grupos = new ArrayList<>();
+    private final ArrayList<GrupoUsuario> grupos = new ArrayList<>();
     private Perfil perfil;
 
     private static int geradorId = 0;
@@ -22,7 +22,9 @@ public class Usuario {
 
     public Usuario(String nome, String email, String senha, boolean status, Collection<Grupo> grupos) {
         this(nome, email, senha, status);
-        getGrupos().addAll(grupos);
+        for (Grupo grupo : grupos) {
+            adicionarGrupo(grupo);
+        }
     }
 
     public int getId() {
@@ -61,14 +63,22 @@ public class Usuario {
         this.status = status;
     }
 
-    public ArrayList<Grupo> getGrupos() {
+    public ArrayList<GrupoUsuario> getGrupos() {
         return grupos;
     }
 
     public void adicionarGrupo(Grupo grupo) {
-        if(!getGrupos().contains(grupo)) {
-            getGrupos().add(grupo);
-            grupo.adicionarUsuario(this);
+        for (GrupoUsuario grupoUsuario : getGrupos()) {
+            if(grupoUsuario.getGrupo().equals(grupo)) {
+                return;
+            }
+        }
+        grupo.adicionarUsuario(this);
+        for (GrupoUsuario grupoUsuario : grupo.getMembros()) {
+            if (grupoUsuario.getUsuario().equals(this)) {
+                grupos.add(grupoUsuario);
+                return;
+            }
         }
     }
 
@@ -90,6 +100,60 @@ public class Usuario {
         }
     }
 
+    private GrupoUsuario atualizarGrupo(int id) {
+        for (GrupoUsuario grupoUsuario : getGrupos()) {
+            if (grupoUsuario.getGrupo().getId() == id) {
+                return grupoUsuario;
+            }
+        }
+        return null;
+    }
+
+    public boolean atualizarGrupo(int id, String nome, String descricao) {
+        GrupoUsuario grupoUsuario = atualizarGrupo(id);
+        if(grupoUsuario == null || !grupoUsuario.isDono()) {
+            return false;
+        }
+
+        grupoUsuario.getGrupo().setNome(nome);
+        grupoUsuario.getGrupo().setDescricao(descricao);
+        return true;
+    }
+
+    public boolean atualizarGrupo(int id, String descricao) {
+        GrupoUsuario grupoUsuario = atualizarGrupo(id);
+        if(grupoUsuario == null || !grupoUsuario.isDono()) {
+            return false;
+        }
+
+        grupoUsuario.getGrupo().setDescricao(descricao);
+        return true;
+    }
+
+    public void removerGrupo(int id) {
+        for (int i = 0; i < getGrupos().size(); i++) {
+            GrupoUsuario grupoUsuario = getGrupos().get(i);
+            if(grupoUsuario.getGrupo().getId() == id) {
+                // Apesar de não estar na figura, não sei outra maneira pra fazer isso de forma consistente (criando o
+                // método que remove o usuário)
+                grupoUsuario.getGrupo().removeUsuario(this);
+                getGrupos().remove(i);
+                return;
+            }
+        }
+    }
+
+    public void removerGrupo(Grupo grupo) {
+        for (int i = 0; i < getGrupos().size(); i++) {
+            GrupoUsuario grupoUsuario = getGrupos().get(i);
+            if(grupoUsuario.getGrupo().equals(grupo)) {
+                grupoUsuario.getGrupo().removeUsuario(this);
+                getGrupos().remove(i);
+                return;
+            }
+        }
+    }
+
     @Override
     public String toString() {
         String descricao = "Usuário id = " + getId() + "\n" +
@@ -99,8 +163,8 @@ public class Usuario {
                 "Status: " + getStatus() + "\n" +
                 "Perfil: " + getPerfil() + "\n" +
                 (getGrupos().isEmpty() ? "Não possui grupos\n" : "Grupos:\n");
-        for(Grupo grupo : getGrupos()) {
-           descricao += grupo.toString();
+        for (GrupoUsuario grupoUsuario : getGrupos()) {
+            descricao += grupoUsuario.getGrupo().getNome();
         }
         return descricao;
     }
