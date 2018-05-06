@@ -10,12 +10,12 @@ public class CaronaPrivada extends Carona {
 
     @Override
     public boolean adicionarCaroneiro(Caroneiro caroneiro) {
-        if(getCaroneiros().size() >= getOcupacaoMaxima()) {
+        if (getCaroneiros().size() >= getOcupacaoMaxima()) {
             return false;
         }
 
-        for(CaronaCaroneiro caronaCaroneiro : getCaroneiros()) {
-            if(caronaCaroneiro.getCaroneiro() == caroneiro) {
+        for (CaronaCaroneiro caronaCaroneiro : getCaroneiros()) {
+            if (caronaCaroneiro.getCaroneiro() == caroneiro) {
                 return false;
             }
         }
@@ -36,10 +36,11 @@ public class CaronaPrivada extends Carona {
     }
 
     public boolean adicionarGrupo(GrupoPrivado grupo) {
-        if(this.grupos.contains(grupo)) {
+        if (this.grupos.contains(grupo)) {
             return false;
         }
 
+        grupo.adicionarCaronaPrivada(this);
         this.grupos.add(grupo);
         return true;
     }

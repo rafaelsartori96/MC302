@@ -10,12 +10,12 @@ public class CaronaPublica extends Carona {
 
     @Override
     public boolean adicionarCaroneiro(Caroneiro caroneiro) {
-        if(getCaroneiros().size() >= getOcupacaoMaxima()) {
+        if (getCaroneiros().size() >= getOcupacaoMaxima()) {
             return false;
         }
 
-        for(CaronaCaroneiro caronaCaroneiro : getCaroneiros()) {
-            if(caronaCaroneiro.getCaroneiro() == caroneiro) {
+        for (CaronaCaroneiro caronaCaroneiro : getCaroneiros()) {
+            if (caronaCaroneiro.getCaroneiro() == caroneiro) {
                 return false;
             }
         }
@@ -36,10 +36,11 @@ public class CaronaPublica extends Carona {
     }
 
     public boolean adicionarGrupo(GrupoPublico grupo) {
-        if(this.grupos.contains(grupo)) {
+        if (this.grupos.contains(grupo)) {
             return false;
         }
 
+        grupo.adicionarCaronaPublica(this);
         this.grupos.add(grupo);
         return true;
     }

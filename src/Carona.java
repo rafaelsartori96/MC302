@@ -109,7 +109,7 @@ public abstract class Carona {
      * como se fosse uma carona de pagamento opcional, mas está errado.
      */
     public boolean adicionarFormaPagamento(MetodoPagamento metodoPagamento) {
-        if(metodoPagamento.possuiCusto()) {
+        if (metodoPagamento.possuiCusto()) {
             removerFormaPagamento(MetodoPagamento.GRATIS);
         }
         return this.metodoPagamentos.add(metodoPagamento); // Por ser um set, não precisamos conferir por duplicatas
@@ -128,8 +128,8 @@ public abstract class Carona {
     }
 
     public boolean atribuirNotaCaroneiro(int id_caroneiro, float avaliacao) {
-        for(CaronaCaroneiro caronaCaroneiro : this.caroneiros) {
-            if(caronaCaroneiro.getCaroneiro().getPerfil().getUsuario().getId() == id_caroneiro) {
+        for (CaronaCaroneiro caronaCaroneiro : this.caroneiros) {
+            if (caronaCaroneiro.getCaroneiro().getPerfil().getUsuario().getId() == id_caroneiro) {
                 caronaCaroneiro.setAvaliacao(avaliacao);
                 return true;
             }

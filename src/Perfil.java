@@ -60,14 +60,14 @@ public class Perfil {
 
     public void setUsuario(Usuario usuario) {
         // Se não está atualizado para o Perfil
-        if(this.usuario != usuario) {
+        if (this.usuario != usuario) {
             // Removemos o "link" do perfil desatualizado
-            if(this.usuario != null)
+            if (this.usuario != null)
                 this.usuario.setPerfil(null);
             // Atualizamos o perfil
             this.usuario = usuario;
             // Atribuimos o perfil ao usuário se não está atualizado para o Usuário
-            if(usuario != null && usuario.getPerfil() != this)
+            if (usuario != null && usuario.getPerfil() != this)
                 usuario.setPerfil(this);
         }
     }
@@ -125,7 +125,7 @@ public class Perfil {
     }
 
     public void setCaronante(Caronante caronante) {
-        if(this.caronante != caronante) {
+        if (this.caronante != caronante) {
             caronante.setPerfil(this);
             this.caronante = caronante;
         }
@@ -136,7 +136,7 @@ public class Perfil {
     }
 
     public void setCaroneiro(Caroneiro caroneiro) {
-        if(this.caroneiro != caroneiro) {
+        if (this.caroneiro != caroneiro) {
             this.caroneiro = caroneiro;
             caroneiro.setPerfil(this);
         }

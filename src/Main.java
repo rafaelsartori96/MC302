@@ -2,10 +2,30 @@
  * Rafael Santos (RA: 186154)
  *
  * Questão 1:
+ *  Poderíamos fazer um construtor novo para as duas classes, um recebendo um argumento da outra classe, assim consegui-
+ *  ríamos obter todas as informações do grupo do outro tipo para a construção do novo de forma fácil.
+ *  Poderia ser um método estático talvez que faça a mesma coisa. (A comparação de método estático e um construtor nesse
+ *  caso é muito interessante pois haveira poucas diferenças: ambos receberiam um tipo de grupo e retornariam outro já
+ *  pronto, com todas as informações transferidas.)
  *
  * Questão 2:
+ *  O compilador obriga a utilização de casting para a verificação dos métodos do objeto que está tratando, mesmo que a
+ *  ligação funcione dinamicamente, o que implica que o compilador não sabe de fato qual o método será executado, mas
+ *  sabe que o método existirá com certeza, que é o que importa. Logo, para o compilador ter certeza que o método
+ *  exista, é necessário fazer o downcasting, "descer" à alguma subclasse para acessar o método que não existe na
+ *  superclasse. Para fazer isso de maneira segura, é necessário saber de fato qual instância estamos tratando.
  *
  * Questão 3:
+ *  Neste caso é impossível, pois GrupoPublico não é uma subclasse de GrupoPrivado, ou seja, não existe "caminho" de
+ *  downcasting para isso acontecer. Uma possível solução é adicionar o método à alguma superclasse comum de ambas.
+ *
+ * Questão 4:
+ *  A vantagem é obrigar a utilização das subclasses que não possuem ambiguidade por conta do nome. A desvantagem é
+ *  possuir responsabilidades de implementação de métodos que irão provavelmente posssuir diferentes significados.
+ *
+ * Questão 5:
+ *  Métodos abstratos públicos podem existir através de interfaces, cuja implementação não é de fato uma herança, pois
+ *  apenas possui uma característica em comum: obrigatoriedade de existir implementação para uma assinatura de método.
  */
 
 
@@ -13,7 +33,70 @@ public class Main {
 
     /* Laboratório 7 */
     public static void main(String[] arguments) {
+        Perfil perfil1 = new Perfil('M', "12/12/2012", "Marília", "São Paulo", "00 14321-1321", false);
+        Usuario usuario1 = new Usuario("Rafael", "rafael@email.com", "5555", true);
+        usuario1.setPerfil(perfil1);
+        Caronante caronante = new Caronante(3, "Qualquer", "aaa-5452", "1144225566", "Fusca", "Wolks", 12, perfil1);
 
+        Perfil perfil2 = new Perfil('M', "13/12/2012", "São Paulo", "São Paulo", "00 14321-1322", false);
+        Usuario usuario2 = new Usuario("Rafa", "rafa@email.com", "5556", true);
+        usuario2.setPerfil(perfil2);
+        Caroneiro caroneiro = new Caroneiro(perfil2);
+
+        GrupoPrivado grupoPrivado = new GrupoPrivado(usuario1, "Grupo privado", "Bairro do jão");
+        GrupoPublico grupoPublico = new GrupoPublico(usuario1, "Campinas", "e proximidades");
+
+        grupoPublico.adicionarUsuario(usuario2);
+
+        Carona[] caronas = new Carona[]{caronante.oferecerCaronaPublica(), caronante.oferecerCaronaPrivada()};
+
+        for (Carona carona : caronas) {
+            if (carona instanceof CaronaPrivada) {
+                ((CaronaPrivada) carona).adicionarGrupo(grupoPrivado);
+            } else if (carona instanceof CaronaPublica) {
+                ((CaronaPublica) carona).adicionarGrupo(grupoPublico);
+            }
+        }
+
+        System.out.println(usuario1);
+        System.out.println(usuario2);
+
+        System.out.println(grupoPrivado);
+        System.out.println(grupoPublico);
+
+        // Deve retornar true e false, pois o usuário está apenas no grupo público
+        for (Carona carona : caronas) {
+            System.out.println(caroneiro.pedirCarona(carona));
+            System.out.println(carona);
+        }
+
+        usuario2.adicionarGrupo(grupoPrivado);
+
+        // Deve retornar false e true, pois o usuário já está apenas em uma carona
+        for (Carona carona : caronas) {
+            System.out.println(caroneiro.pedirCarona(carona));
+        }
+
+        float nota = 0.0F;
+        // Deve definir a nota como 1 para o caroneiro e 1,5 para o caronante na primeira viagem
+        // Deve definir a nota como 2 para o caroneiro e 2,0 para o caronante na segunda viagem
+        for (Carona carona : caronas) {
+            for (CaronaCaroneiro caronaCaroneiro : carona.getCaroneiros()) {
+                nota += 1.0F;
+                caronaCaroneiro.setAvaliacao(nota);
+            }
+            carona.getCaronante().setAvaliacao((nota + 2.0F) / 2.0F);
+
+            System.out.println("Avaliação atual caroneiro: " + caroneiro.getAvaliacao()); // deve ser 0,5 e depois 1,5
+            // (a nota é 0,5 porque ele está nas duas caronas e a outra possui nota zero por padrão)
+            System.out.println("Avaliação atual caronante: " + caronante.getAvaliacao()); // deve ser 0,75 e depois 1,75
+        }
+
+        System.out.println(usuario1);
+        System.out.println(usuario2);
+
+        System.out.println(grupoPrivado);
+        System.out.println(grupoPublico);
     }
 
     /* Laboratório 6 */

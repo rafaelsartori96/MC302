@@ -2,13 +2,14 @@ import java.util.ArrayList;
 
 public abstract class Grupo {
 
+    private static int geradorId = 0;
+
+    private final ArrayList<GrupoUsuario> membros = new ArrayList<>();
+
     private final int id;
     private GrupoUsuario dono;
     private String nome, descricao;
 
-    protected final ArrayList<GrupoUsuario> membros = new ArrayList<>();
-
-    private static int geradorId = 0;
 
     public Grupo(Usuario dono, String nome, String descricao) {
         this.id = Grupo.geradorId++;
@@ -21,18 +22,19 @@ public abstract class Grupo {
         return id;
     }
 
-    public Usuario getDono() {
-        return dono.getUsuario();
+    public GrupoUsuario getDono() {
+        return dono;
     }
 
     public void setDono(Usuario dono) {
         this.dono = new GrupoUsuario(dono, this);
         this.dono.setDono(true);
+        dono.adicionarGrupo(this);
 
         // Removemos o dono do grupo se está
         for (int i = 0; i < getMembros().size(); i++) {
             GrupoUsuario grupoUsuario = getMembros().get(i);
-            if (grupoUsuario.getUsuario().equals(getDono())) {
+            if (grupoUsuario.equals(getDono())) {
                 getMembros().remove(i);
             }
         }
@@ -65,7 +67,7 @@ public abstract class Grupo {
     @Override
     public String toString() {
         String string = "Grupo id = " + getId() + ":\n" +
-                "Dono: " + getDono().getNome() + "\n" +
+                "Dono: " + getDono().getUsuario().getNome() + "\n" +
                 "Nome: " + getNome() + "\n" +
                 "Descrição: " + getDescricao() + "\n" +
                 (getMembros().isEmpty() ? "Não há membros!\n" : "Usuários:\n");

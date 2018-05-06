@@ -103,20 +103,20 @@ public class Caronante {
     }
 
     public void setPerfil(Perfil perfil) {
-        if(this.perfil != perfil) {
+        if (this.perfil != perfil) {
             this.perfil = perfil;
             perfil.setCaronante(this);
         }
     }
 
     public float getAvaliacao() {
-        if(this.caronas.isEmpty()) {
+        if (this.caronas.isEmpty()) {
             return -1.0F;
         }
 
         float soma = 0.0F;
-        for(CaronaCaronante caronaCaronante : this.caronas) {
-            soma = caronaCaronante.getAvaliacao();
+        for (CaronaCaronante caronaCaronante : this.caronas) {
+            soma += caronaCaronante.getAvaliacao();
         }
 
         return soma / this.caronas.size();

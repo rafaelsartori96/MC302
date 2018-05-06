@@ -68,17 +68,20 @@ public class Usuario {
     }
 
     public void adicionarGrupo(Grupo grupo) {
+        grupo.adicionarUsuario(this);
         for (GrupoUsuario grupoUsuario : getGrupos()) {
-            if(grupoUsuario.getGrupo().equals(grupo)) {
+            if (grupoUsuario.getGrupo().equals(grupo)) {
                 return;
             }
         }
-        grupo.adicionarUsuario(this);
         for (GrupoUsuario grupoUsuario : grupo.getMembros()) {
             if (grupoUsuario.getUsuario().equals(this)) {
                 grupos.add(grupoUsuario);
                 return;
             }
+        }
+        if (grupo.getDono().getUsuario().equals(this)) {
+            grupos.add(grupo.getDono());
         }
     }
 
@@ -88,14 +91,14 @@ public class Usuario {
 
     public void setPerfil(Perfil perfil) {
         // Se está desatualizado
-        if(this.perfil != perfil) {
+        if (this.perfil != perfil) {
             // Atualizamos o perfil antigo
-            if(this.perfil != null)
+            if (this.perfil != null)
                 this.perfil.setUsuario(null);
             // Mudamos de perfil
             this.perfil = perfil;
             // Atualizamos o perfil se ele está desatualizado
-            if(perfil != null && perfil.getUsuario() != this)
+            if (perfil != null && perfil.getUsuario() != this)
                 perfil.setUsuario(this);
         }
     }
@@ -111,7 +114,7 @@ public class Usuario {
 
     public boolean atualizarGrupo(int id, String nome, String descricao) {
         GrupoUsuario grupoUsuario = atualizarGrupo(id);
-        if(grupoUsuario == null || !grupoUsuario.isDono()) {
+        if (grupoUsuario == null || !grupoUsuario.isDono()) {
             return false;
         }
 
@@ -122,7 +125,7 @@ public class Usuario {
 
     public boolean atualizarGrupo(int id, String descricao) {
         GrupoUsuario grupoUsuario = atualizarGrupo(id);
-        if(grupoUsuario == null || !grupoUsuario.isDono()) {
+        if (grupoUsuario == null || !grupoUsuario.isDono()) {
             return false;
         }
 
@@ -133,7 +136,7 @@ public class Usuario {
     public void removerGrupo(int id) {
         for (int i = 0; i < getGrupos().size(); i++) {
             GrupoUsuario grupoUsuario = getGrupos().get(i);
-            if(grupoUsuario.getGrupo().getId() == id) {
+            if (grupoUsuario.getGrupo().getId() == id) {
                 // Apesar de não estar na figura, não sei outra maneira pra fazer isso de forma consistente (criando o
                 // método que remove o usuário)
                 grupoUsuario.getGrupo().removeUsuario(this);
@@ -146,8 +149,8 @@ public class Usuario {
     public void removerGrupo(Grupo grupo) {
         for (int i = 0; i < getGrupos().size(); i++) {
             GrupoUsuario grupoUsuario = getGrupos().get(i);
-            if(grupoUsuario.getGrupo().equals(grupo)) {
-                grupoUsuario.getGrupo().removeUsuario(this);
+            if (grupoUsuario.getGrupo().equals(grupo)) {
+                grupo.removeUsuario(this);
                 getGrupos().remove(i);
                 return;
             }
@@ -164,7 +167,7 @@ public class Usuario {
                 "Perfil: " + getPerfil() + "\n" +
                 (getGrupos().isEmpty() ? "Não possui grupos\n" : "Grupos:\n");
         for (GrupoUsuario grupoUsuario : getGrupos()) {
-            descricao += grupoUsuario.getGrupo().getNome();
+            descricao += grupoUsuario.getGrupo().getNome() + ", ";
         }
         return descricao;
     }

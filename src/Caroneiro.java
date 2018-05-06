@@ -2,18 +2,15 @@ import java.util.ArrayList;
 
 public class Caroneiro {
 
-    private String cartaoDeCrediito;
-
-    private Perfil perfil;
-
     private final ArrayList<CaronaCaroneiro> caronas = new ArrayList<>();
 
-    public Caroneiro(String cartaoDeCrediito) {
-        setCartaoDeCrediito(cartaoDeCrediito);
+    private String cartaoDeCrediito = null;
+    private Perfil perfil = null;
+
+    public Caroneiro() {
     }
 
-    public Caroneiro(String cartaoDeCrediito, Perfil perfil) {
-        this(cartaoDeCrediito);
+    public Caroneiro(Perfil perfil) {
         setPerfil(perfil);
     }
 
@@ -30,14 +27,14 @@ public class Caroneiro {
     }
 
     public void setPerfil(Perfil perfil) {
-        if(this.perfil != perfil) {
+        if (this.perfil != perfil) {
             this.perfil = perfil;
             perfil.setCaroneiro(this);
         }
     }
 
     public boolean pedirCarona(Carona carona) {
-        return false;
+        return carona.adicionarCaroneiro(this);
     }
 
     public void adicionarCarona(CaronaCaroneiro caronaCaroneiro) {
@@ -50,13 +47,13 @@ public class Caroneiro {
     }
 
     public float getAvaliacao() {
-        if(this.caronas.isEmpty()) {
+        if (this.caronas.isEmpty()) {
             return -1.0F;
         }
 
         float soma = 0.0F;
-        for(CaronaCaroneiro caronaCaroneiro: this.caronas) {
-            soma = caronaCaroneiro.getAvaliacao();
+        for (CaronaCaroneiro caronaCaroneiro : this.caronas) {
+            soma += caronaCaroneiro.getAvaliacao();
         }
 
         return soma / this.caronas.size();
