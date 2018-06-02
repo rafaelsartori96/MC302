@@ -1,6 +1,9 @@
 package pagamento;
 
 public enum MetodoPagamento {
-	CartaoDeCredito, Dinheiro, Gratis
+
+    CARTAO_DE_CREDITO,
+    DINHEIRO,
+    GRATIS
 
 }
