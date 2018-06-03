@@ -17,6 +17,11 @@ public class GrupoPublico extends Grupo {
         adicionarMembro(dono);
     }
 
+    GrupoPublico(int id, String nome, String descricao, Usuario dono) {
+        super(Tipo.PUBLICO, id, nome, descricao, dono);
+        if (dono != null) adicionarMembro(dono);
+    }
+
     @Override
     public void adicionarMembro(Usuario usuario) {
         GrupoUsuario grupoUsuario = new GrupoUsuario(usuario, this);

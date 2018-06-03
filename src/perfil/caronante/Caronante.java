@@ -6,6 +6,7 @@ import java.util.*;
 import carona.CaronaPrivada;
 import carona.CaronaPublica;
 import perfil.Perfil;
+import perfil.caroneiro.*;
 import utilidades.*;
 
 public class Caronante implements Salvavel, Comparable<Caronante> {
@@ -41,6 +42,13 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
         this.marcaVeiculo = marcaVeiculo;
         this.modeloVeiculo = modeloVeiculo;
         this.assentosDisponiveis = assentosDisponiveis;
+    }
+
+    private Caronante(int tempoHabilitacao, String generoMusicalFavorito, String placaVeiculo, String carteiraMotorista,
+                      String marcaVeiculo, String modeloVeiculo, int assentosDisponiveis, int avaliacoesPassadas, float somaAvaliacoesPassadas) {
+        this(tempoHabilitacao, generoMusicalFavorito, placaVeiculo, carteiraMotorista, marcaVeiculo, modeloVeiculo, assentosDisponiveis);
+        this.avaliacoesPassadas = avaliacoesPassadas;
+        this.somaAvaliacoesPassadas = somaAvaliacoesPassadas;
     }
 
     public CaronaPublica oferecerCaronaPublica(double latitudeEncontro, double longitudeEncontro,
@@ -159,20 +167,44 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
     }
 
     // Será incluido pelo perfil
+
     @Override
-    public void salvarParaArquivo(OutputStream outputStream) throws IOException {
-        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-        dataOutputStream.writeChars(carteiraMotorista);
+    public void salvarParaArquivo(DataOutputStream dataOutputStream) throws IOException {
+        dataOutputStream.writeUTF(carteiraMotorista);
         dataOutputStream.writeInt(tempoHabilitacao);
         dataOutputStream.writeInt(assentosDisponiveis);
-        dataOutputStream.writeChars(generoMusicalFavorito);
-        dataOutputStream.writeChars(placaVeiculo);
-        dataOutputStream.writeChars(marcaVeiculo);
-        dataOutputStream.writeChars(modeloVeiculo);
+        dataOutputStream.writeUTF(generoMusicalFavorito);
+        dataOutputStream.writeUTF(placaVeiculo);
+        dataOutputStream.writeUTF(marcaVeiculo);
+        dataOutputStream.writeUTF(modeloVeiculo);
         double[] avaliacoes = caronas.stream().mapToDouble(CaronaCaronante::getAvaliacao).filter(value -> value >= 0).toArray();
         dataOutputStream.writeInt(avaliacoesPassadas + avaliacoes.length);
         dataOutputStream.writeFloat(somaAvaliacoesPassadas + (float) Arrays.stream(avaliacoes).sum());
         dataOutputStream.flush();
+    }
+
+    public static Caronante carregar(DataInputStream inputStream) throws IOException {
+        String carteiraMotorista = inputStream.readUTF();
+        int tempoHabilitacao = inputStream.readInt();
+        int assentosDisponiveis = inputStream.readInt();
+        String generoMusicalFavorito = inputStream.readUTF();
+        String placaVeiculo = inputStream.readUTF();
+        String marcaVeiculo = inputStream.readUTF();
+        String modeloVeiculo = inputStream.readUTF();
+        int avaliacoes = inputStream.readInt();
+        float somaAvaliacoes = inputStream.readFloat();
+
+        return new Caronante(
+                tempoHabilitacao,
+                generoMusicalFavorito,
+                placaVeiculo,
+                carteiraMotorista,
+                marcaVeiculo,
+                modeloVeiculo,
+                assentosDisponiveis,
+                avaliacoes,
+                somaAvaliacoes
+        );
     }
 
     @Override

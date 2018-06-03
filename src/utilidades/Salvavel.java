@@ -4,6 +4,6 @@ import java.io.*;
 
 public interface Salvavel {
 
-    void salvarParaArquivo(OutputStream outputStream) throws IOException;
+    void salvarParaArquivo(DataOutputStream dataOutputStream) throws IOException;
 
 }

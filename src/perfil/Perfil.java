@@ -133,29 +133,53 @@ public class Perfil implements Salvavel {
     }
 
     // Será incluido pelo usuário
-    @Override
-    public void salvarParaArquivo(OutputStream outputStream) throws IOException {
-        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
 
+    @Override
+    public void salvarParaArquivo(DataOutputStream dataOutputStream) throws IOException {
         if (caroneiro != null) {
             dataOutputStream.writeBoolean(true);
-            caroneiro.salvarParaArquivo(outputStream);
+            caroneiro.salvarParaArquivo(dataOutputStream);
         } else {
             dataOutputStream.writeBoolean(false);
         }
 
         if (caronante != null) {
             dataOutputStream.writeBoolean(true);
-            caronante.salvarParaArquivo(outputStream);
+            caronante.salvarParaArquivo(dataOutputStream);
         } else {
             dataOutputStream.writeBoolean(false);
         }
 
         dataOutputStream.writeChar(sexo);
-        dataOutputStream.writeChars(dataNascimento);
-        dataOutputStream.writeChars(cidade);
-        dataOutputStream.writeChars(estado);
-        dataOutputStream.writeChars(telefone);
+        dataOutputStream.writeUTF(dataNascimento);
+        dataOutputStream.writeUTF(cidade);
+        dataOutputStream.writeUTF(estado);
+        dataOutputStream.writeUTF(telefone);
         dataOutputStream.writeBoolean(fumante);
+
+        dataOutputStream.flush();
+    }
+
+    public static Perfil carregar(DataInputStream inputStream) throws IOException {
+        /* Verificamos se há perfil caroneiro */
+        Caroneiro caroneiro = null;
+        if (inputStream.readBoolean()) {
+            caroneiro = Caroneiro.carregar(inputStream);
+        }
+
+        /* Verificamos se há caronante */
+        Caronante caronante = null;
+        if (inputStream.readBoolean()) {
+            caronante = Caronante.carregar(inputStream);
+        }
+
+        char sexo = inputStream.readChar();
+        String dataNascimento = inputStream.readUTF();
+        String cidade = inputStream.readUTF();
+        String estado = inputStream.readUTF();
+        String telefone = inputStream.readUTF();
+        boolean fumante = inputStream.readBoolean();
+
+        return new Perfil(sexo, dataNascimento, cidade, estado, telefone, fumante, caronante, caroneiro, null);
     }
 }

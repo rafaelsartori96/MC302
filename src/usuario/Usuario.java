@@ -30,6 +30,20 @@ public class Usuario implements Salvavel {
         if (perfil != null) perfil.setUsuario(this);
     }
 
+    private Usuario(int id, String nome, String email, String senha, boolean status, Perfil perfil) {
+        this.id = id;
+        // Subimos o gerador para o valor que temos certeza
+        if (this.id >= geradorId) {
+            geradorId = this.id + 1;
+        }
+        this.nome = nome;
+        this.email = email;
+        this.senha = senha;
+        this.status = status;
+        this.perfil = perfil;
+        if (perfil != null) perfil.setUsuario(this);
+    }
+
     public int getId() {
         return id;
     }
@@ -42,9 +56,10 @@ public class Usuario implements Salvavel {
         this.nome = nome;
     }
 
-    // Adiciona do lado de cá e considera que o relacionamento foi feito do outro lado
 
+    // Adiciona do lado de cá e considera que o relacionamento foi feito do outro lado
     // (o jeito de separar é que esse adiciona um GrupoUsuario explicitamente)
+
     public void adicionarGrupoUsuario(GrupoUsuario grupo) {
         grupos.add(grupo);
     }
@@ -86,6 +101,7 @@ public class Usuario implements Salvavel {
     }
 
     // Já é garantido que o dono do grupo não possa sair sem alterar o dono
+
     public boolean removerGrupo(int id) {
         for (GrupoUsuario grupoUsuario : grupos) {
             if (grupoUsuario.getGrupo().getId() == id) {
@@ -179,20 +195,36 @@ public class Usuario implements Salvavel {
     }
 
     @Override
-    public void salvarParaArquivo(OutputStream outputStream) throws IOException {
-        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-
+    public void salvarParaArquivo(DataOutputStream dataOutputStream) throws IOException {
         if (perfil != null) {
             dataOutputStream.writeBoolean(true);
-            perfil.salvarParaArquivo(outputStream);
+            perfil.salvarParaArquivo(dataOutputStream);
         } else {
             dataOutputStream.writeBoolean(false);
         }
 
         dataOutputStream.writeInt(id);
-        dataOutputStream.writeChars(nome);
-        dataOutputStream.writeChars(email);
-        dataOutputStream.writeChars(senha);
+        dataOutputStream.writeUTF(nome);
+        dataOutputStream.writeUTF(email);
+        dataOutputStream.writeUTF(senha);
         dataOutputStream.writeBoolean(status);
+
+        dataOutputStream.flush();
+    }
+
+    public static Usuario carregar(DataInputStream inputStream) throws IOException {
+        // Verificamos se há perfil
+        Perfil perfil = null;
+        if (inputStream.readBoolean()) {
+            perfil = Perfil.carregar(inputStream);
+        }
+
+        int id = inputStream.readInt();
+        String nome = inputStream.readUTF();
+        String email = inputStream.readUTF();
+        String senha = inputStream.readUTF();
+        boolean status = inputStream.readBoolean();
+
+        return new Usuario(id, nome, email, senha, status, perfil);
     }
 }

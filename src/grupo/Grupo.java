@@ -25,11 +25,12 @@ public abstract class Grupo implements Salvavel {
         this.dono = dono;
     }
 
-    public Grupo(Tipo tipo, String nome, String descricao) {
+    Grupo(Tipo tipo, int id, String nome, String descricao, Usuario dono) {
+        this.id = id;
         this.tipo = tipo;
-        this.id = Grupo.geradorId++;
         this.nome = nome;
         this.descricao = descricao;
+        this.dono = dono;
     }
 
     public String getNome() {
@@ -71,6 +72,7 @@ public abstract class Grupo implements Salvavel {
     public abstract boolean removerMembro(Usuario usuario);
 
     // Considera que o dono ainda será membro, é necessário anterior e atual para verificar se não é um usuário comum
+
     // que quer alterar o dono do grupo
     public boolean alterarDono(Usuario anterior, Usuario atual) {
         if (anterior.getId() != dono.getId()) {
@@ -123,12 +125,11 @@ public abstract class Grupo implements Salvavel {
     }
 
     @Override
-    public void salvarParaArquivo(OutputStream outputStream) throws IOException {
-        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+    public void salvarParaArquivo(DataOutputStream dataOutputStream) throws IOException {
         dataOutputStream.writeInt(tipo.ordinal());
         dataOutputStream.writeInt(id);
-        dataOutputStream.writeChars(nome);
-        dataOutputStream.writeChars(descricao);
+        dataOutputStream.writeUTF(nome);
+        dataOutputStream.writeUTF(descricao);
 
         if (dono != null) {
             dataOutputStream.writeBoolean(true);
@@ -146,8 +147,65 @@ public abstract class Grupo implements Salvavel {
         dataOutputStream.flush();
     }
 
+    public static Grupo carregar(DataInputStream dataInputStream, List<Usuario> usuarios) throws IOException {
+        Tipo tipo = Tipo.fromOrdinal(dataInputStream.readInt());
+        int id = dataInputStream.readInt();
+        String nome = dataInputStream.readUTF();
+        String descricao = dataInputStream.readUTF();
+
+        /* Conferimos se há dono */
+        Usuario dono = null;
+        if (dataInputStream.readBoolean()) {
+            int donoId = dataInputStream.readInt();
+            for (Usuario usuario : usuarios) {
+                if (donoId == usuario.getId()) {
+                    dono = usuario;
+                    break;
+                }
+            }
+        }
+
+        /* Criamos o grupo */
+        Grupo grupo;
+        if (tipo == Tipo.PRIVADO) {
+            grupo = new GrupoPrivado(id, nome, descricao, dono);
+        } else {
+            grupo = new GrupoPublico(id, nome, descricao, dono);
+        }
+
+        /* Colocamos os usuários no grupo */
+        int numMembros = dataInputStream.readInt();
+        HashSet<Integer> idsMembros = new HashSet<>(numMembros);
+        // Adicionamos todos os IDs dos usuários
+        for (int i = 0; i < numMembros; i++) {
+            idsMembros.add(dataInputStream.readInt());
+        }
+        // Procuramos em todos os usuários
+        for (Usuario usuario : usuarios) {
+            if (dono != null && usuario.getId() == dono.getId()) {
+                continue;
+            }
+            if (idsMembros.contains(usuario.getId())) {
+                grupo.adicionarMembro(usuario);
+            }
+        }
+
+        return grupo;
+    }
+
     public enum Tipo {
+
         PUBLICO,
-        PRIVADO
+        PRIVADO;
+
+        public static Tipo fromOrdinal(int ordinal) {
+            for (Tipo tipo : values()) {
+                if (tipo.ordinal() == ordinal) {
+                    return tipo;
+                }
+            }
+
+            return null;
+        }
     }
 }

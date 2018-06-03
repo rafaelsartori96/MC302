@@ -26,9 +26,12 @@ public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
         this.pagamentoEmDinheiro = pagamentoEmDinheiro;
     }
 
-    public Caroneiro(String cartaoDeCredito) {
+    private Caroneiro(boolean pagamentoEmDinheiro, String cartaoDeCredito, int avaliacoesPassadas, float somaAvaliacoesPassadas) {
         this();
+        this.pagamentoEmDinheiro = pagamentoEmDinheiro;
         this.cartaoDeCredito = cartaoDeCredito;
+        this.avaliacoesPassadas = avaliacoesPassadas;
+        this.somaAvaliacoesPassadas = somaAvaliacoesPassadas;
     }
 
     public Caroneiro() {
@@ -101,20 +104,35 @@ public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
     }
 
     // Será incluido pelo perfil
+
     @Override
-    public void salvarParaArquivo(OutputStream outputStream) throws IOException {
-        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+    public void salvarParaArquivo(DataOutputStream dataOutputStream) throws IOException {
         if (cartaoDeCredito == null || cartaoDeCredito.length() == 0) {
             dataOutputStream.writeBoolean(false);
         } else {
             dataOutputStream.writeBoolean(true);
-            dataOutputStream.writeChars(cartaoDeCredito);
+            dataOutputStream.writeUTF(cartaoDeCredito);
         }
         dataOutputStream.writeBoolean(pagamentoEmDinheiro);
         double[] avaliacoes = caronas.stream().mapToDouble(CaronaCaroneiro::getAvaliacao).filter(value -> value >= 0).toArray();
         dataOutputStream.writeInt(avaliacoesPassadas + avaliacoes.length);
         dataOutputStream.writeFloat(somaAvaliacoesPassadas + (float) Arrays.stream(avaliacoes).sum());
         dataOutputStream.flush();
+    }
+
+    public static Caroneiro carregar(DataInputStream inputStream) throws IOException {
+        /* Verificamos se possui cartão de crédito */
+        String cartaoDeCredito = null;
+        if (inputStream.readBoolean()) {
+            cartaoDeCredito = inputStream.readUTF();
+        }
+
+        /* Verificamos o pagamento em dinheiro */
+        boolean pagamentoEmDinheiro = inputStream.readBoolean();
+        int avaliacoes = inputStream.readInt();
+        float somaAvaliacoes = inputStream.readFloat();
+
+        return new Caroneiro(pagamentoEmDinheiro, cartaoDeCredito, avaliacoes, somaAvaliacoes);
     }
 
     @Override
