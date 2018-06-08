@@ -102,25 +102,24 @@ public class Usuario implements Salvavel {
 
     // Já é garantido que o dono do grupo não possa sair sem alterar o dono
 
-    public boolean removerGrupo(int id) {
+    public void removerGrupo(int id) throws SistemaCaronaException {
         for (GrupoUsuario grupoUsuario : grupos) {
             if (grupoUsuario.getGrupo().getId() == id) {
                 // Conferimos o grupo apenas para privado (aparentemente, grupos públicos podem ficar sem dono)
                 if (grupoUsuario.getGrupo().getTipo() == Grupo.Tipo.PRIVADO &&
                         grupoUsuario.getGrupo().getDono().getId() == getId()) {
-                    return false;
+                    throw new SistemaCaronaException("Grupo privado não pode ficar sem dono!");
                 }
 
                 grupos.remove(grupoUsuario);
                 grupoUsuario.getGrupo().removerMembro(this);
-                return true;
             }
         }
-        return false;
+        throw new SistemaCaronaException("O usuário não pertence a este grupo!");
     }
 
-    public boolean removerGrupo(Grupo grupo) {
-        return removerGrupo(grupo.getId());
+    public void removerGrupo(Grupo grupo) throws SistemaCaronaException {
+        removerGrupo(grupo.getId());
     }
 
     public boolean atualizarGrupo(int id, String nome, String descricao) {

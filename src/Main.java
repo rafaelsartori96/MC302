@@ -102,7 +102,12 @@ public class Main {
             caronaPublica.adicionarGrupo(gpu);
 
             /* Remover u0 de gpu */
-            usuarios[0].removerGrupo(gpu);
+            try {
+                usuarios[0].removerGrupo(gpu);
+                System.out.println("\tUsuário 0 foi removido de gpu\n\n\n\n");
+            } catch (SistemaCaronaException e) {
+                System.out.println("\tUsuário 0 não pôde ser removido de gpu: " + e.getMessage());
+            }
             System.out.println("\tEstado de gpu:\n" + gpu.toStringMostraMembros(0) + "\n\n\n\n");
 
             /* Criar carona de u2, que está no grupo ec017 */
