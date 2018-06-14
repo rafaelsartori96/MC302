@@ -1,11 +1,11 @@
-package carona;
+package laboratorio.carona;
 
 import java.util.ArrayList;
 
-import perfil.caronante.CaronaCaronante;
-import perfil.caroneiro.CaronaCaroneiro;
-import grupo.GrupoPublico;
-import usuario.*;
+import laboratorio.perfil.caronante.CaronaCaronante;
+import laboratorio.perfil.caroneiro.CaronaCaroneiro;
+import laboratorio.grupo.GrupoPublico;
+import laboratorio.usuario.*;
 
 public class CaronaPublica extends Carona {
 
@@ -29,7 +29,7 @@ public class CaronaPublica extends Carona {
             return super.adicionarCaroneiro(caroneiro);
         }
 
-        // Se há, limitamos aos que estão no grupo
+        // Se há, limitamos aos que estão no laboratorio.grupo
         Usuario usuario = caroneiro.getCaroneiro().getPerfil().getUsuario();
         for (GrupoPublico grupo : grupos) {
             if (grupo.checarPresenca(usuario)) {

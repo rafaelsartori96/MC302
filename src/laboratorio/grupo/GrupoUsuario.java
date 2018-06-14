@@ -1,13 +1,13 @@
-package grupo;
+package laboratorio.grupo;
 
-import usuario.Usuario;
+import laboratorio.usuario.Usuario;
 
 public class GrupoUsuario {
 
     private final Usuario usuario;
     private final Grupo grupo;
 
-    public GrupoUsuario(Usuario usuario, Grupo grupo) {
+    GrupoUsuario(Usuario usuario, Grupo grupo) {
         this.usuario = usuario;
         this.grupo = grupo;
     }

@@ -1,13 +1,13 @@
-package carona;
+package laboratorio.carona;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import perfil.caronante.*;
-import perfil.caroneiro.CaronaCaroneiro;
-import perfil.caroneiro.Caroneiro;
-import pagamento.MetodoPagamento;
-import utilidades.HelperFormatacao;
+import laboratorio.perfil.caronante.*;
+import laboratorio.perfil.caroneiro.CaronaCaroneiro;
+import laboratorio.perfil.caroneiro.Caroneiro;
+import laboratorio.pagamento.MetodoPagamento;
+import laboratorio.utilidades.HelperFormatacao;
 
 public abstract class Carona {
 
@@ -176,22 +176,22 @@ public abstract class Carona {
 
     public String toString(int numeroEspacos) {
         String espacos = HelperFormatacao.criaEspacos(numeroEspacos);
-        String stringCaroneiros = espacos + "*Nao ha caroneiros nessa carona*\n";
+        String stringCaroneiros = espacos + "*Nao ha caroneiros nessa laboratorio.carona*\n";
         if (!caroneiros.isEmpty()) {
             StringBuilder stringBuilder = new StringBuilder();
             String espacos2 = HelperFormatacao.criaEspacos(numeroEspacos + 1);
             for (CaronaCaroneiro caroneiro : caroneiros) {
                 stringBuilder.append(caroneiro.getCaroneiro().toStringDesdeUsuario(numeroEspacos + 1));
-                stringBuilder.append(espacos2).append("| - Avaliacao dada para a carona: ").append(caroneiro.getAvaliacao()).append("\n");
+                stringBuilder.append(espacos2).append("| - Avaliacao dada para a laboratorio.carona: ").append(caroneiro.getAvaliacao()).append("\n");
             }
 
             stringCaroneiros = stringBuilder.toString();
         }
 
-        String stringFormaPag = espacos + "*Nao ha forma de pagamento cadastrado*\n";
+        String stringFormaPag = espacos + "*Nao ha forma de laboratorio.pagamento cadastrado*\n";
         if (!metodoPagamentos.isEmpty()) {
             // Um exemplo com stream. Nesse caso ele faz um stream (simplificando, nesse caso é como se fosse uma lista)
-            // com as formas de pagamento, e então transforma cada elemento MetodoPagamento para uma string que
+            // com as formas de laboratorio.pagamento, e então transforma cada elemento MetodoPagamento para uma string que
             // tem o retorno do método "name" (que retorna o string correspondente ao enum) do enum.
             // Finalmente, dá um join com ", "
             stringFormaPag = metodoPagamentos.stream()
@@ -208,7 +208,7 @@ public abstract class Carona {
                         + "%s| - Dados do caronante: \n%s"
                         + "%s| - Avaliacao dada pelo caronante: %s\n"
                         + "%s| - Dados dos caroneiros: \n%s"
-                        + "%s| - Formas de pagamento aceitas: %s\n",
+                        + "%s| - Formas de laboratorio.pagamento aceitas: %s\n",
                 espacos, espacos, this.latitudeEncontro, this.longitudeEncontro,
                 espacos, this.latitudeDestino, this.longitudeDestino,
                 espacos, this.horaDiaEncontro,

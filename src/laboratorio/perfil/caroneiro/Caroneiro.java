@@ -1,11 +1,11 @@
-package perfil.caroneiro;
+package laboratorio.perfil.caroneiro;
 
 import java.io.*;
 import java.util.*;
 
-import carona.Carona;
-import perfil.Perfil;
-import utilidades.*;
+import laboratorio.carona.Carona;
+import laboratorio.perfil.Perfil;
+import laboratorio.utilidades.*;
 
 public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
 
@@ -34,7 +34,7 @@ public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
         this.somaAvaliacoesPassadas = somaAvaliacoesPassadas;
     }
 
-    public Caroneiro() {
+    private Caroneiro() {
         numCaroneiros++;
     }
 
@@ -54,7 +54,12 @@ public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
     }
 
     public void setPerfil(Perfil perfil) {
-        this.perfil = perfil;
+        if (this.perfil != perfil) {
+            this.perfil = perfil;
+            if (perfil != null) {
+                perfil.setCaroneiro(this);
+            }
+        }
     }
 
     public String getCartaoDeCredito() {
@@ -103,7 +108,10 @@ public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
         return toString(0);
     }
 
-    // Será incluido pelo perfil
+    @Override
+    public int compareTo(Caroneiro caroneiro) {
+        return Float.compare(getAvaliacao(), caroneiro.getAvaliacao());
+    }
 
     @Override
     public void salvarParaArquivo(DataOutputStream dataOutputStream) throws IOException {
@@ -127,16 +135,11 @@ public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
             cartaoDeCredito = inputStream.readUTF();
         }
 
-        /* Verificamos o pagamento em dinheiro */
+        /* Verificamos o laboratorio.pagamento em dinheiro */
         boolean pagamentoEmDinheiro = inputStream.readBoolean();
         int avaliacoes = inputStream.readInt();
         float somaAvaliacoes = inputStream.readFloat();
 
         return new Caroneiro(pagamentoEmDinheiro, cartaoDeCredito, avaliacoes, somaAvaliacoes);
-    }
-
-    @Override
-    public int compareTo(Caroneiro caroneiro) {
-        return Float.compare(getAvaliacao(), caroneiro.getAvaliacao());
     }
 }

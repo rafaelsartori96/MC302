@@ -1,6 +1,6 @@
-package perfil.caronante;
+package laboratorio.perfil.caronante;
 
-import carona.Carona;
+import laboratorio.carona.Carona;
 
 public class CaronaCaronante {
 

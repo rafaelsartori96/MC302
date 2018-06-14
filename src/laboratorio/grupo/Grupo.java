@@ -1,10 +1,11 @@
-package grupo;
+package laboratorio.grupo;
 
 import java.io.*;
 import java.util.*;
 
-import usuario.Usuario;
-import utilidades.*;
+import laboratorio.usuario.GerenciadorUsuario;
+import laboratorio.usuario.Usuario;
+import laboratorio.utilidades.*;
 
 public abstract class Grupo implements Salvavel {
 
@@ -17,20 +18,20 @@ public abstract class Grupo implements Salvavel {
     private String descricao;
     private Usuario dono;
 
-    public Grupo(Tipo tipo, String nome, String descricao, Usuario dono) {
+    Grupo(Tipo tipo, Usuario dono, String nome, String descricao) {
         this.tipo = tipo;
         this.id = Grupo.geradorId++;
+        this.dono = dono;
         this.nome = nome;
         this.descricao = descricao;
-        this.dono = dono;
     }
 
-    Grupo(Tipo tipo, int id, String nome, String descricao, Usuario dono) {
+    Grupo(Tipo tipo, int id, Usuario dono, String nome, String descricao) {
         this.id = id;
         this.tipo = tipo;
+        this.dono = dono;
         this.nome = nome;
         this.descricao = descricao;
-        this.dono = dono;
     }
 
     public String getNome() {
@@ -71,17 +72,18 @@ public abstract class Grupo implements Salvavel {
 
     public abstract boolean removerMembro(Usuario usuario);
 
-    // Considera que o dono ainda será membro, é necessário anterior e atual para verificar se não é um usuário comum
-
-    // que quer alterar o dono do grupo
+    /*
+     * Considera que o dono ainda será membro, é necessário anterior e atual para verificar se não é um usuário comum
+     * que quer alterar o dono do laboratorio.grupo
+     */
     public boolean alterarDono(Usuario anterior, Usuario atual) {
         if (anterior.getId() != dono.getId()) {
             return false;
         }
 
-        // É possível possuir um grupo sem dono (público)
+        // É possível possuir um laboratorio.grupo sem dono (público)
         if (tipo == Tipo.PRIVADO) {
-            // Insere o usuario como membro, também (com o cuidado de verificar a unicidade - mais fácil remover antes)
+            // Insere o laboratorio.usuario como membro, também (com o cuidado de verificar a unicidade - mais fácil remover antes)
             this.removerMembro(atual);
             this.adicionarMembro(atual);
         }
@@ -147,7 +149,7 @@ public abstract class Grupo implements Salvavel {
         dataOutputStream.flush();
     }
 
-    public static Grupo carregar(DataInputStream dataInputStream, List<Usuario> usuarios) throws IOException {
+    static Grupo carregar(DataInputStream dataInputStream, GerenciadorUsuario gerenciadorUsuario) throws IOException {
         Tipo tipo = Tipo.fromOrdinal(dataInputStream.readInt());
         int id = dataInputStream.readInt();
         String nome = dataInputStream.readUTF();
@@ -156,38 +158,22 @@ public abstract class Grupo implements Salvavel {
         /* Conferimos se há dono */
         Usuario dono = null;
         if (dataInputStream.readBoolean()) {
-            int donoId = dataInputStream.readInt();
-            for (Usuario usuario : usuarios) {
-                if (donoId == usuario.getId()) {
-                    dono = usuario;
-                    break;
-                }
-            }
+            dono = gerenciadorUsuario.getUsuario(dataInputStream.readInt());
         }
 
-        /* Criamos o grupo */
+        /* Criamos o laboratorio.grupo */
         Grupo grupo;
         if (tipo == Tipo.PRIVADO) {
-            grupo = new GrupoPrivado(id, nome, descricao, dono);
+            grupo = new GrupoPrivado(id, dono, nome, descricao);
         } else {
-            grupo = new GrupoPublico(id, nome, descricao, dono);
+            grupo = new GrupoPublico(id, dono, nome, descricao);
         }
 
-        /* Colocamos os usuários no grupo */
+        /* Colocamos os usuários no laboratorio.grupo */
         int numMembros = dataInputStream.readInt();
-        HashSet<Integer> idsMembros = new HashSet<>(numMembros);
-        // Adicionamos todos os IDs dos usuários
+        // Adicionamos todos os usuários
         for (int i = 0; i < numMembros; i++) {
-            idsMembros.add(dataInputStream.readInt());
-        }
-        // Procuramos em todos os usuários
-        for (Usuario usuario : usuarios) {
-            if (dono != null && usuario.getId() == dono.getId()) {
-                continue;
-            }
-            if (idsMembros.contains(usuario.getId())) {
-                grupo.adicionarMembro(usuario);
-            }
+            grupo.adicionarMembro(gerenciadorUsuario.getUsuario(dataInputStream.readInt()));
         }
 
         return grupo;

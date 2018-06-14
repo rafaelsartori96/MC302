@@ -1,24 +1,23 @@
-package grupo;
+package laboratorio.grupo;
 
-import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import carona.CaronaPrivada;
-import usuario.Usuario;
+import laboratorio.carona.CaronaPrivada;
+import laboratorio.usuario.Usuario;
 
 public class GrupoPrivado extends Grupo {
 
     private final ArrayList<GrupoUsuario> membros = new ArrayList<>();
     private final ArrayList<CaronaPrivada> caronas = new ArrayList<>();
 
-    public GrupoPrivado(String nome, String descricao, Usuario dono) {
-        super(Tipo.PRIVADO, nome, descricao, dono);
+    GrupoPrivado(Usuario dono, String nome, String descricao) {
+        super(Tipo.PRIVADO, dono, nome, descricao);
         adicionarMembro(dono);
     }
 
-    GrupoPrivado(int id, String nome, String descricao, Usuario dono) {
-        super(Tipo.PRIVADO, id, nome, descricao, dono);
+    GrupoPrivado(int id, Usuario dono, String nome, String descricao) {
+        super(Tipo.PRIVADO, id, dono, nome, descricao);
         adicionarMembro(dono);
     }
 

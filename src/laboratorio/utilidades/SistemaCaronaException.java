@@ -1,4 +1,4 @@
-package utilidades;
+package laboratorio.utilidades;
 
 public class SistemaCaronaException extends Exception {
 

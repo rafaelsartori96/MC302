@@ -1,9 +1,9 @@
-package perfil;
+package laboratorio.perfil;
 
-import perfil.caronante.Caronante;
-import perfil.caroneiro.Caroneiro;
-import usuario.Usuario;
-import utilidades.*;
+import laboratorio.perfil.caronante.Caronante;
+import laboratorio.perfil.caroneiro.Caroneiro;
+import laboratorio.usuario.Usuario;
+import laboratorio.utilidades.*;
 
 import java.io.*;
 
@@ -22,9 +22,11 @@ public class Perfil implements Salvavel {
     private String telefone;
     private boolean fumante;
 
-    public Perfil(char sexo, String dataNascimento, String cidade, String estado, String telefone, boolean fumante,
-                  Caronante caronante, Caroneiro caroneiro, Usuario usuario) {
-        super();
+    public Perfil(Caronante caronante, Caroneiro caroneiro, Usuario usuario,
+                  char sexo, String dataNascimento, String cidade, String estado, String telefone, boolean fumante) {
+        setCaronante(caronante);
+        setCaroneiro(caroneiro);
+        setUsuario(usuario);
         this.sexo = sexo;
         this.dataNascimento = dataNascimento;
         this.cidade = cidade;
@@ -33,13 +35,15 @@ public class Perfil implements Salvavel {
         this.fumante = fumante;
         this.caronante = caronante;
         this.caroneiro = caroneiro;
-        if (caronante != null) caronante.setPerfil(this);
-        if (caroneiro != null) caroneiro.setPerfil(this);
-        if (usuario != null) usuario.setPerfil(this);
     }
 
     public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+        if (this.usuario != usuario) {
+            this.usuario = usuario;
+            if (usuario != null) {
+                usuario.setPerfil(this);
+            }
+        }
     }
 
     public Usuario getUsuario() {
@@ -51,7 +55,12 @@ public class Perfil implements Salvavel {
     }
 
     public void setCaroneiro(Caroneiro caroneiro) {
-        this.caroneiro = caroneiro;
+        if (this.caroneiro != caroneiro) {
+            this.caroneiro = caroneiro;
+            if (caroneiro != null) {
+                caroneiro.setPerfil(this);
+            }
+        }
     }
 
     public Caronante getCaronante() {
@@ -59,7 +68,12 @@ public class Perfil implements Salvavel {
     }
 
     public void setCaronante(Caronante caronante) {
-        this.caronante = caronante;
+        if (this.caronante != caronante) {
+            this.caronante = caronante;
+            if (caronante != null) {
+                caronante.setPerfil(this);
+            }
+        }
     }
 
     public char getSexo() {
@@ -161,7 +175,7 @@ public class Perfil implements Salvavel {
     }
 
     public static Perfil carregar(DataInputStream inputStream) throws IOException {
-        /* Verificamos se há perfil caroneiro */
+        /* Verificamos se há laboratorio.perfil caroneiro */
         Caroneiro caroneiro = null;
         if (inputStream.readBoolean()) {
             caroneiro = Caroneiro.carregar(inputStream);
@@ -180,6 +194,6 @@ public class Perfil implements Salvavel {
         String telefone = inputStream.readUTF();
         boolean fumante = inputStream.readBoolean();
 
-        return new Perfil(sexo, dataNascimento, cidade, estado, telefone, fumante, caronante, caroneiro, null);
+        return new Perfil(caronante, caroneiro, null, sexo, dataNascimento, cidade, estado, telefone, fumante);
     }
 }

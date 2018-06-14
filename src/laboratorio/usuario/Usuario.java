@@ -1,11 +1,12 @@
-package usuario;
+package laboratorio.usuario;
 
 import java.io.*;
 import java.util.ArrayList;
 
-import grupo.*;
-import perfil.Perfil;
-import utilidades.*;
+import laboratorio.Main;
+import laboratorio.grupo.*;
+import laboratorio.perfil.Perfil;
+import laboratorio.utilidades.*;
 
 public class Usuario implements Salvavel {
 
@@ -20,14 +21,12 @@ public class Usuario implements Salvavel {
     private String senha;
     private boolean status;
 
-    public Usuario(String nome, String email, String senha, boolean status, Perfil perfil) {
+    Usuario(String nome, String email, String senha, boolean status) {
         this.id = Usuario.geradorId++;
         this.nome = nome;
         this.email = email;
         this.senha = senha;
         this.status = status;
-        this.perfil = perfil;
-        if (perfil != null) perfil.setUsuario(this);
     }
 
     private Usuario(int id, String nome, String email, String senha, boolean status, Perfil perfil) {
@@ -40,8 +39,7 @@ public class Usuario implements Salvavel {
         this.email = email;
         this.senha = senha;
         this.status = status;
-        this.perfil = perfil;
-        if (perfil != null) perfil.setUsuario(this);
+        setPerfil(perfil);
     }
 
     public int getId() {
@@ -93,19 +91,24 @@ public class Usuario implements Salvavel {
     }
 
     public void setPerfil(Perfil perfil) {
-        this.perfil = perfil;
+        if (this.perfil != perfil) {
+            this.perfil = perfil;
+            if (perfil != null) {
+                perfil.setUsuario(this);
+            }
+        }
     }
 
     public void adicionarGrupo(GrupoPublico grupo) {
         grupo.adicionarMembro(this);
     }
 
-    // Já é garantido que o dono do grupo não possa sair sem alterar o dono
+    // Já é garantido que o dono do laboratorio.grupo não possa sair sem alterar o dono
 
     public void removerGrupo(int id) throws SistemaCaronaException {
         for (GrupoUsuario grupoUsuario : grupos) {
             if (grupoUsuario.getGrupo().getId() == id) {
-                // Conferimos o grupo apenas para privado (aparentemente, grupos públicos podem ficar sem dono)
+                // Conferimos o laboratorio.grupo apenas para privado (aparentemente, grupos públicos podem ficar sem dono)
                 if (grupoUsuario.getGrupo().getTipo() == Grupo.Tipo.PRIVADO &&
                         grupoUsuario.getGrupo().getDono().getId() == getId()) {
                     throw new SistemaCaronaException("Grupo privado não pode ficar sem dono!");
@@ -115,7 +118,7 @@ public class Usuario implements Salvavel {
                 grupoUsuario.getGrupo().removerMembro(this);
             }
         }
-        throw new SistemaCaronaException("O usuário não pertence a este grupo!");
+        throw new SistemaCaronaException("O usuário não pertence a este laboratorio.grupo!");
     }
 
     public void removerGrupo(Grupo grupo) throws SistemaCaronaException {
@@ -142,24 +145,24 @@ public class Usuario implements Salvavel {
 
     public void adicionarAGrupo(GrupoPrivado grupo, Usuario usuario) throws SistemaCaronaException {
         if (grupo.getDono().getId() != getId()) {
-            throw new SistemaCaronaException("Não é possível adicionar alguém ao grupo privado não sendo o dono.");
+            throw new SistemaCaronaException("Não é possível adicionar alguém ao laboratorio.grupo privado não sendo o dono.");
         }
 
         grupo.adicionarMembro(usuario);
     }
 
     public GrupoPublico criarGrupoPublico(String nome, String descricao) {
-        return new GrupoPublico(nome, descricao, this);
+        return Main.gerenciadorGrupo.criarGrupoPublico(this, nome, descricao);
     }
 
     public GrupoPrivado criarGrupoPrivado(String nome, String descricao) {
-        return new GrupoPrivado(nome, descricao, this);
+        return Main.gerenciadorGrupo.criarGrupoPrivado(this, nome, descricao);
     }
 
     public String toString(int numeroEspacos) {
         String espacos = HelperFormatacao.criaEspacos(numeroEspacos);
 
-        String stringGrupos = espacos + "* Sem grupo associado *\n";
+        String stringGrupos = espacos + "* Sem laboratorio.grupo associado *\n";
 
         if (!grupos.isEmpty()) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -211,8 +214,8 @@ public class Usuario implements Salvavel {
         dataOutputStream.flush();
     }
 
-    public static Usuario carregar(DataInputStream inputStream) throws IOException {
-        // Verificamos se há perfil
+    static Usuario carregar(DataInputStream inputStream) throws IOException {
+        // Verificamos se há laboratorio.perfil
         Perfil perfil = null;
         if (inputStream.readBoolean()) {
             perfil = Perfil.carregar(inputStream);

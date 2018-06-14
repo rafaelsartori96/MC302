@@ -1,24 +1,23 @@
-package grupo;
+package laboratorio.grupo;
 
-import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import carona.CaronaPublica;
-import usuario.Usuario;
+import laboratorio.carona.CaronaPublica;
+import laboratorio.usuario.Usuario;
 
 public class GrupoPublico extends Grupo {
 
     private final ArrayList<GrupoUsuario> membros = new ArrayList<>();
     private final ArrayList<CaronaPublica> caronas = new ArrayList<>();
 
-    public GrupoPublico(String nome, String descricao, Usuario dono) {
-        super(Tipo.PUBLICO, nome, descricao, dono);
+    GrupoPublico(Usuario dono, String nome, String descricao) {
+        super(Tipo.PUBLICO, dono, nome, descricao);
         adicionarMembro(dono);
     }
 
-    GrupoPublico(int id, String nome, String descricao, Usuario dono) {
-        super(Tipo.PUBLICO, id, nome, descricao, dono);
+    GrupoPublico(int id, Usuario dono, String nome, String descricao) {
+        super(Tipo.PUBLICO, id, dono, nome, descricao);
         if (dono != null) adicionarMembro(dono);
     }
 
@@ -32,10 +31,10 @@ public class GrupoPublico extends Grupo {
     // Deve ser chamado através de usuário
     @Override
     public boolean removerMembro(Usuario usuario) {
-        /* "Garanta que o método removerGrupo só remova o usuário do grupo caso ele não seja o dono (no caso de ser um
-         * grupo privado)."
-         * Faz sentido o grupo público poder não possuir dono.. então vou remover o dono caso o usuário dono saia do
-         * grupo (o que seria impedido no grupo privado). Em grupo privado, a chamada em usuário retorna false antes
+        /* "Garanta que o método removerGrupo só remova o usuário do laboratorio.grupo caso ele não seja o dono (no caso de ser um
+         * laboratorio.grupo privado)."
+         * Faz sentido o laboratorio.grupo público poder não possuir dono.. então vou remover o dono caso o usuário dono saia do
+         * laboratorio.grupo (o que seria impedido no laboratorio.grupo privado). Em laboratorio.grupo privado, a chamada em usuário retorna false antes
          * de chegar nesse método de Grupo (e o sobreescrito em GrupoPrivado)
          */
         if (getDono() != null && getDono().getId() == usuario.getId()) {

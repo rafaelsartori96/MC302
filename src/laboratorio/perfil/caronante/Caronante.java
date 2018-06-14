@@ -1,13 +1,12 @@
-package perfil.caronante;
+package laboratorio.perfil.caronante;
 
 import java.io.*;
 import java.util.*;
 
-import carona.CaronaPrivada;
-import carona.CaronaPublica;
-import perfil.Perfil;
-import perfil.caroneiro.*;
-import utilidades.*;
+import laboratorio.carona.CaronaPrivada;
+import laboratorio.carona.CaronaPublica;
+import laboratorio.perfil.Perfil;
+import laboratorio.utilidades.*;
 
 public class Caronante implements Salvavel, Comparable<Caronante> {
 
@@ -28,7 +27,7 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
     private String marcaVeiculo;
     private String modeloVeiculo;
 
-    public Caronante(String carteiraMotorista) {
+    private Caronante(String carteiraMotorista) {
         numCaronantes++;
         this.carteiraMotorista = carteiraMotorista;
     }
@@ -74,7 +73,12 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
     }
 
     public void setPerfil(Perfil perfil) {
-        this.perfil = perfil;
+        if (this.perfil != perfil) {
+            this.perfil = perfil;
+            if (perfil != null) {
+                perfil.setCaronante(this);
+            }
+        }
     }
 
     public int getTempoHabilitacao() {
@@ -166,7 +170,7 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
         return toString(0);
     }
 
-    // Será incluido pelo perfil
+    // Será incluido pelo laboratorio.perfil
 
     @Override
     public void salvarParaArquivo(DataOutputStream dataOutputStream) throws IOException {

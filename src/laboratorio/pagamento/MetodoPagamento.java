@@ -1,4 +1,4 @@
-package pagamento;
+package laboratorio.pagamento;
 
 public enum MetodoPagamento {
 

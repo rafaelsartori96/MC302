@@ -1,11 +1,11 @@
-package carona;
+package laboratorio.carona;
 
 import java.util.ArrayList;
 
-import perfil.caronante.CaronaCaronante;
-import perfil.caroneiro.CaronaCaroneiro;
-import grupo.GrupoPrivado;
-import usuario.*;
+import laboratorio.perfil.caronante.CaronaCaronante;
+import laboratorio.perfil.caroneiro.CaronaCaroneiro;
+import laboratorio.grupo.GrupoPrivado;
+import laboratorio.usuario.*;
 
 public class CaronaPrivada extends Carona {
 
