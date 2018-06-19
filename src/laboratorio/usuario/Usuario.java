@@ -152,11 +152,11 @@ public class Usuario implements Salvavel {
     }
 
     public GrupoPublico criarGrupoPublico(String nome, String descricao) {
-        return Main.gerenciadorGrupo.criarGrupoPublico(this, nome, descricao);
+        return Main.getMain().getGerenciadorGrupo().criarGrupoPublico(this, nome, descricao);
     }
 
     public GrupoPrivado criarGrupoPrivado(String nome, String descricao) {
-        return Main.gerenciadorGrupo.criarGrupoPrivado(this, nome, descricao);
+        return Main.getMain().getGerenciadorGrupo().criarGrupoPrivado(this, nome, descricao);
     }
 
     public String toString(int numeroEspacos) {

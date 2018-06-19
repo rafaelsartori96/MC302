@@ -1,104 +1,98 @@
 package laboratorio;
 
 import laboratorio.grupo.GerenciadorGrupo;
+import laboratorio.perfil.*;
 import laboratorio.usuario.GerenciadorUsuario;
 import laboratorio.usuario.Usuario;
+import laboratorio.utilidades.*;
 
 import javax.swing.*;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.*;
+import java.util.List;
 
 /*
  * Rafael Santos, RA 186154
  */
 public class Main {
 
-    public static GerenciadorUsuario gerenciadorUsuario;
-    public static GerenciadorGrupo gerenciadorGrupo;
+    private static Main main;
 
-    public static void main(String[] arguments) {
+    private final GerenciadorUsuario gerenciadorUsuario;
+    private final GerenciadorGrupo gerenciadorGrupo;
+
+    private Usuario usuario = null;
+
+    private JFrame janela;
+
+    public Main() {
+        GerenciadorUsuario gerenciadorUsuario_ = new GerenciadorUsuario();
+        GerenciadorGrupo gerenciadorGrupo_ = new GerenciadorGrupo();
+
         /* Iniciamos o sistema, carregamos de arquivo se houver */
         try (DataInputStream dataInputStream = new DataInputStream(new BufferedInputStream(new FileInputStream("database.db")))) {
-            gerenciadorUsuario = GerenciadorUsuario.carregar(dataInputStream);
-            gerenciadorGrupo = GerenciadorGrupo.carregar(dataInputStream, gerenciadorUsuario);
+            gerenciadorUsuario_ = GerenciadorUsuario.carregar(dataInputStream);
+            gerenciadorGrupo_ = GerenciadorGrupo.carregar(dataInputStream, gerenciadorUsuario_);
         } catch (IOException e) {
-            System.out.println("Não há banco de dados para leitura.");
-            gerenciadorUsuario = new GerenciadorUsuario();
-            gerenciadorGrupo = new GerenciadorGrupo();
+            System.out.println("Não há banco de dados para leitura ou algum erro ocorreu.");
+            /* Para criar o 'database.db' pela primeira vez */
+            Usuario usuario = gerenciadorUsuario_.criarUsuario("Usuario 1", "u1@site.com", "senha", true);
+            new Perfil(null, null, usuario, 'm', "14/02/2086", "Townsville", "Republicano", "12", false);
+            gerenciadorUsuario_.criarUsuario("Usuario 2", "u2@site.com", "senha", true);
+            gerenciadorUsuario_.criarUsuario("Usuario 3", "u3@site.com", "senha", true);
+            gerenciadorUsuario_.criarUsuario("senha padrão é \"senha\"", "u2,5@site.com", "senha", true);
         }
 
-        JFrame janela = new JFrame();
-        janela.setTitle("Exemplo");
+        /* Definimos as variáveis final após tentar carregar o arquivo */
+        this.gerenciadorUsuario = gerenciadorUsuario_;
+        this.gerenciadorGrupo = gerenciadorGrupo_;
+
+        /* Iniciamos a janela principal do nosso programa */
+        janela = new JFrame();
+        janela.setMinimumSize(new Dimension(600, 500));
+        janela.setTitle("Sistema de caronas");
         janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        janela.setLocationRelativeTo(null);
+    }
 
-        JPanel painel = new JPanel(new GridBagLayout());
-        janela.add(painel);
+    public static void main(String[] arguments) {
+        // Alguma referência global para não termos que passar Main para todos os objetos
+        main = new Main();
+        main.prepararLogin();
+    }
 
-        GridBagConstraints gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.weightx = 1;
-        gridBagConstraints.weighty = 1;
-        gridBagConstraints.fill = 3;
-        gridBagConstraints.ipadx = 10;
-        gridBagConstraints.ipady = 10;
-
-        JTable jTable = new JTable();
-
-        JButton entrar = new JButton("Entrar");
-        entrar.addActionListener(event -> {
-
-        });
-        painel.add(entrar, gridBagConstraints);
-
-        JButton sair = new JButton("Salvar e sair");
-        sair.addActionListener(event -> {
-            /* Terminamos o sistema, salvamos para arquivo */
-            System.out.println("Salvando database...");
-            try (DataOutputStream dataOutputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("database.db")))) {
-                gerenciadorUsuario.salvarParaArquivo(dataOutputStream);
-                gerenciadorGrupo.salvarParaArquivo(dataOutputStream);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            janela.dispose();
-        });
-        painel.add(sair, gridBagConstraints);
-
-        janela.pack();
+    private void prepararLogin() {
+        janela.add(new PainelLogin(janela));
         janela.setVisible(true);
     }
 
-    private static class UsuarioTabela extends AbstractTableModel {
+    public static Main getMain() {
+        return main;
+    }
 
-        @Override
-        public int getRowCount() {
-            return gerenciadorUsuario.getUsuarios().size();
-        }
+    public GerenciadorUsuario getGerenciadorUsuario() {
+        return gerenciadorUsuario;
+    }
 
-        @Override
-        public int getColumnCount() {
-            // id, nome e e-mail
-            return 3;
-        }
+    public GerenciadorGrupo getGerenciadorGrupo() {
+        return gerenciadorGrupo;
+    }
 
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            Usuario usuario = gerenciadorUsuario.getUsuarios().get(rowIndex);
-            switch (columnIndex) {
-                case 0:
-                    return usuario.getId();
-                case 1:
-                    return usuario.getNome();
-                default:
-                    return usuario.getEmail();
-            }
+    /**
+     * Define o usuário que está usando o serviço.
+     *
+     * @param usuario usuário que entrou com a senha correta
+     */
+    public void efetuarLogin(Usuario usuario) {
+        if (usuario == null) {
+            this.usuario = null;
+            // Criamos a interface de login novamente
+            prepararLogin();
+        } else {
+            this.usuario = usuario;
+            // Criamos a interface de um usuário logado
+            janela.add(new PainelUsuario(janela, usuario));
+            janela.setVisible(true);
         }
     }
 }

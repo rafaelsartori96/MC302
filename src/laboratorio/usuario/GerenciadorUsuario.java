@@ -20,7 +20,9 @@ public class GerenciadorUsuario implements Salvavel {
             }
         }
 
-        return new Usuario(nome, email, senha, status);
+        Usuario usuario = new Usuario(nome, email, senha, status);
+        usuarios.add(usuario);
+        return usuario;
     }
 
     public List<Usuario> getUsuarios() {
@@ -47,8 +49,8 @@ public class GerenciadorUsuario implements Salvavel {
 
     public static GerenciadorUsuario carregar(DataInputStream dataInputStream) throws IOException {
         GerenciadorUsuario gerenciadorUsuario = new GerenciadorUsuario();
-
-        for (int i = 0; i < dataInputStream.readInt(); i++) {
+        int numUsuarios = dataInputStream.readInt();
+        for (int i = 0; i < numUsuarios; i++) {
             gerenciadorUsuario.usuarios.add(Usuario.carregar(dataInputStream));
         }
 

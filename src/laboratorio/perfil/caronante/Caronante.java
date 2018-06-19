@@ -2,9 +2,10 @@ package laboratorio.perfil.caronante;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
 
-import laboratorio.carona.CaronaPrivada;
-import laboratorio.carona.CaronaPublica;
+import laboratorio.carona.*;
 import laboratorio.perfil.Perfil;
 import laboratorio.utilidades.*;
 
@@ -44,14 +45,17 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
     }
 
     private Caronante(int tempoHabilitacao, String generoMusicalFavorito, String placaVeiculo, String carteiraMotorista,
-                      String marcaVeiculo, String modeloVeiculo, int assentosDisponiveis, int avaliacoesPassadas, float somaAvaliacoesPassadas) {
-        this(tempoHabilitacao, generoMusicalFavorito, placaVeiculo, carteiraMotorista, marcaVeiculo, modeloVeiculo, assentosDisponiveis);
+                      String marcaVeiculo, String modeloVeiculo, int assentosDisponiveis, int avaliacoesPassadas,
+                      float somaAvaliacoesPassadas) {
+        this(tempoHabilitacao, generoMusicalFavorito, placaVeiculo, carteiraMotorista, marcaVeiculo, modeloVeiculo,
+                assentosDisponiveis);
         this.avaliacoesPassadas = avaliacoesPassadas;
         this.somaAvaliacoesPassadas = somaAvaliacoesPassadas;
     }
 
     public CaronaPublica oferecerCaronaPublica(double latitudeEncontro, double longitudeEncontro,
-                                               double latitudeDestino, double longitudeDestino, String horaDiaEncontro, float valor) {
+                                               double latitudeDestino, double longitudeDestino, String horaDiaEncontro,
+                                               float valor) {
         CaronaCaronante caronaCaronante = new CaronaCaronante(this, null);
         CaronaPublica carona = new CaronaPublica(caronaCaronante, latitudeEncontro, longitudeEncontro, latitudeDestino,
                 longitudeDestino, horaDiaEncontro, valor);
@@ -60,7 +64,8 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
     }
 
     public CaronaPrivada oferecerCaronaPrivada(double latitudeEncontro, double longitudeEncontro,
-                                               double latitudeDestino, double longitudeDestino, String horaDiaEncontro, float valor) {
+                                               double latitudeDestino, double longitudeDestino, String horaDiaEncontro,
+                                               float valor) {
         CaronaCaronante caronaCaronante = new CaronaCaronante(this, null);
         CaronaPrivada carona = new CaronaPrivada(caronaCaronante, latitudeEncontro, longitudeEncontro, latitudeDestino,
                 longitudeDestino, horaDiaEncontro, valor);
@@ -133,11 +138,18 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
         this.assentosDisponiveis = assentosDisponiveis;
     }
 
+    public List<Carona> getCaronas() {
+        return caronas.stream().map(CaronaCaronante::getCarona).collect(Collectors.toUnmodifiableList());
+    }
+
     public float getAvaliacao() {
-        // A nota padrão é -1, o que significa que nenhuma nota foi atribuida, filtramos os valores para as notas válidas
-        double[] avaliacoes = caronas.stream().mapToDouble(CaronaCaronante::getAvaliacao).filter(value -> value >= 0).toArray();
+        // A nota padrão é -1, o que significa que nenhuma nota foi atribuida, filtramos os valores para as notas
+        // válidas
+        double[] avaliacoes = caronas.stream().mapToDouble(CaronaCaronante::getAvaliacao)
+                .filter(value -> value >= 0).toArray();
         // Somamos e dividimos pela quantidade
-        return (float) ((Arrays.stream(avaliacoes).sum() + somaAvaliacoesPassadas) / (avaliacoes.length + avaliacoesPassadas));
+        return (float) ((Arrays.stream(avaliacoes).sum() + somaAvaliacoesPassadas) /
+                (avaliacoes.length + avaliacoesPassadas));
     }
 
     public static int getNumCaronantes() {
@@ -181,7 +193,8 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
         dataOutputStream.writeUTF(placaVeiculo);
         dataOutputStream.writeUTF(marcaVeiculo);
         dataOutputStream.writeUTF(modeloVeiculo);
-        double[] avaliacoes = caronas.stream().mapToDouble(CaronaCaronante::getAvaliacao).filter(value -> value >= 0).toArray();
+        double[] avaliacoes = caronas.stream().mapToDouble(CaronaCaronante::getAvaliacao)
+                .filter(value -> value >= 0).toArray();
         dataOutputStream.writeInt(avaliacoesPassadas + avaliacoes.length);
         dataOutputStream.writeFloat(somaAvaliacoesPassadas + (float) Arrays.stream(avaliacoes).sum());
         dataOutputStream.flush();

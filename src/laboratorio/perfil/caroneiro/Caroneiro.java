@@ -2,9 +2,11 @@ package laboratorio.perfil.caroneiro;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.*;
 
 import laboratorio.carona.Carona;
 import laboratorio.perfil.Perfil;
+import laboratorio.perfil.caronante.*;
 import laboratorio.utilidades.*;
 
 public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
@@ -76,6 +78,10 @@ public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
 
     public void setPagamentoEmDinheiro(boolean pagamentoEmDinheiro) {
         this.pagamentoEmDinheiro = pagamentoEmDinheiro;
+    }
+
+    public List<Carona> getCaronas() {
+        return caronas.stream().map(CaronaCaroneiro::getCarona).collect(Collectors.toUnmodifiableList());
     }
 
     public float getAvaliacao() {

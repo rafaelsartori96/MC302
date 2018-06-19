@@ -28,20 +28,18 @@ public class GerenciadorGrupo implements Salvavel {
     @Override
     public void salvarParaArquivo(DataOutputStream dataOutputStream) throws IOException {
         dataOutputStream.writeInt(grupos.size());
-
         for (Grupo grupo : grupos) {
             grupo.salvarParaArquivo(dataOutputStream);
         }
-
         dataOutputStream.flush();
     }
 
     public static GerenciadorGrupo carregar(DataInputStream dataInputStream,
                                             GerenciadorUsuario gerenciadorUsuario) throws IOException {
         GerenciadorGrupo gerenciadorGrupo = new GerenciadorGrupo();
-
-        for (int i = 0; i < dataInputStream.readInt(); i++) {
-            Grupo.carregar(dataInputStream, gerenciadorUsuario);
+        int numGrupos = dataInputStream.readInt();
+        for (int i = 0; i < numGrupos; i++) {
+            gerenciadorGrupo.grupos.add(Grupo.carregar(dataInputStream, gerenciadorUsuario));
         }
 
         return gerenciadorGrupo;

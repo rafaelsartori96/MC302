@@ -14,6 +14,7 @@ public abstract class Carona {
     private final ArrayList<CaronaCaroneiro> caroneiros = new ArrayList<>();
     private final ArrayList<MetodoPagamento> metodoPagamentos = new ArrayList<>();
 
+    private final Tipo tipo;
     private final CaronaCaronante caronante;
 
     private double latitudeEncontro;
@@ -24,8 +25,9 @@ public abstract class Carona {
     private int ocupacaoMaxima;
     private float valor;
 
-    public Carona(CaronaCaronante caronante, double latitudeEncontro, double longitudeEncontro,
+    public Carona(Tipo tipo, CaronaCaronante caronante, double latitudeEncontro, double longitudeEncontro,
                   double latitudeDestino, double longitudeDestino, String horaDiaEncontro, float valor) {
+        this.tipo = tipo;
         this.ocupacaoMaxima = caronante.getCaronante().getAssentosDisponiveis();
         this.caronante = caronante;
         this.latitudeEncontro = latitudeEncontro;
@@ -36,14 +38,20 @@ public abstract class Carona {
         this.valor = valor;
     }
 
-    public Carona(CaronaCaronante caronante, double latitudeEncontro, double longitudeEncontro,
-                  double latitudeDestino, double longitudeDestino, String horaDiaEncontro, float valor, int ocupacaoMaxima) {
-        this(caronante, latitudeEncontro, longitudeEncontro, latitudeDestino, longitudeDestino, horaDiaEncontro, valor);
+    public Carona(Tipo tipo, double latitudeEncontro, double longitudeEncontro, double latitudeDestino,
+                  double longitudeDestino, String horaDiaEncontro, float valor, CaronaCaronante caronante,
+                  int ocupacaoMaxima) {
+        this(tipo, caronante, latitudeEncontro, longitudeEncontro, latitudeDestino, longitudeDestino, horaDiaEncontro,
+                valor);
         this.ocupacaoMaxima = ocupacaoMaxima;
     }
 
     public Caronante getCaronante() {
         return caronante.getCaronante();
+    }
+
+    public Tipo getTipo() {
+        return tipo;
     }
 
     public float getValor() {
@@ -182,7 +190,8 @@ public abstract class Carona {
             String espacos2 = HelperFormatacao.criaEspacos(numeroEspacos + 1);
             for (CaronaCaroneiro caroneiro : caroneiros) {
                 stringBuilder.append(caroneiro.getCaroneiro().toStringDesdeUsuario(numeroEspacos + 1));
-                stringBuilder.append(espacos2).append("| - Avaliacao dada para a laboratorio.carona: ").append(caroneiro.getAvaliacao()).append("\n");
+                stringBuilder.append(espacos2).append("| - Avaliacao dada para a laboratorio.carona: ")
+                        .append(caroneiro.getAvaliacao()).append("\n");
             }
 
             stringCaroneiros = stringBuilder.toString();
@@ -225,5 +234,8 @@ public abstract class Carona {
         return toString(0);
     }
 
-
+    public enum Tipo {
+        PUBLICA,
+        PRIVADA
+    }
 }

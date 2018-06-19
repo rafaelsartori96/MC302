@@ -11,15 +11,17 @@ public class CaronaPublica extends Carona {
 
     private final ArrayList<GrupoPublico> grupos = new ArrayList<>();
 
-    public CaronaPublica(CaronaCaronante caronante, double latitudeEncontro, double longitudeEncontro, double latitudeDestino,
-                         double longitudeDestino, String horaDiaEncontro, float valor) {
-        super(caronante, latitudeEncontro, longitudeEncontro, latitudeDestino, longitudeDestino, horaDiaEncontro, valor);
+    public CaronaPublica(CaronaCaronante caronante, double latitudeEncontro, double longitudeEncontro,
+                         double latitudeDestino, double longitudeDestino, String horaDiaEncontro, float valor) {
+        super(Tipo.PUBLICA, caronante, latitudeEncontro, longitudeEncontro, latitudeDestino, longitudeDestino,
+                horaDiaEncontro, valor);
     }
 
-    public CaronaPublica(CaronaCaronante caronante, double latitudeEncontro, double longitudeEncontro, double latitudeDestino,
-                         double longitudeDestino, String horaDiaEncontro, float valor, int ocupacaoMaxima) {
-        super(caronante, latitudeEncontro, longitudeEncontro, latitudeDestino,
-                longitudeDestino, horaDiaEncontro, valor, ocupacaoMaxima);
+    public CaronaPublica(CaronaCaronante caronante, double latitudeEncontro, double longitudeEncontro,
+                         double latitudeDestino, double longitudeDestino, String horaDiaEncontro, float valor,
+                         int ocupacaoMaxima) {
+        super(Tipo.PUBLICA, latitudeEncontro, longitudeEncontro, latitudeDestino, longitudeDestino, horaDiaEncontro,
+                valor, caronante, ocupacaoMaxima);
     }
 
     @Override
