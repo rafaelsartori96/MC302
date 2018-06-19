@@ -4,15 +4,19 @@ import laboratorio.grupo.GerenciadorGrupo;
 import laboratorio.perfil.*;
 import laboratorio.usuario.GerenciadorUsuario;
 import laboratorio.usuario.Usuario;
-import laboratorio.utilidades.*;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.*;
-import java.util.List;
 
 /*
- * Rafael Santos, RA 186154
+ * Rafael Santos (186154)
+ *
+ * As funcionalidades "básicas" desse programa exigem uma construção muito trabalhosa. Tive dificuldade durante as
+ * primeiras horas, porém agora só está um *ENORME* trabalho maçante. Apenas essa parte ficou mais de 600 linhas de
+ * código.
+ *
+ * A JanelaUsuario é a interface que atende todas as necessidades básicas exigidas no laboratório. Eu fiz a JanelaLogin
+ * (que não era necessário no laboratório) antes dela, ficou razoavelmente curta.
  */
 public class Main {
 
@@ -23,7 +27,7 @@ public class Main {
 
     private Usuario usuario = null;
 
-    private JFrame janela;
+    private JFrame janelaPrincipal = null;
 
     public Main() {
         GerenciadorUsuario gerenciadorUsuario_ = new GerenciadorUsuario();
@@ -46,24 +50,21 @@ public class Main {
         /* Definimos as variáveis final após tentar carregar o arquivo */
         this.gerenciadorUsuario = gerenciadorUsuario_;
         this.gerenciadorGrupo = gerenciadorGrupo_;
-
-        /* Iniciamos a janela principal do nosso programa */
-        janela = new JFrame();
-        janela.setMinimumSize(new Dimension(600, 500));
-        janela.setTitle("Sistema de caronas");
-        janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        janela.setLocationRelativeTo(null);
     }
 
     public static void main(String[] arguments) {
         // Alguma referência global para não termos que passar Main para todos os objetos
         main = new Main();
-        main.prepararLogin();
+        main.setJanelaPrincipal(new JanelaLogin());
     }
 
-    private void prepararLogin() {
-        janela.add(new PainelLogin(janela));
-        janela.setVisible(true);
+    public void setJanelaPrincipal(JFrame janelaPrincipal) {
+        if (this.janelaPrincipal != null) {
+            this.janelaPrincipal.setVisible(false);
+            this.janelaPrincipal.dispose();
+        }
+        this.janelaPrincipal = janelaPrincipal;
+        this.janelaPrincipal.setVisible(true);
     }
 
     public static Main getMain() {
@@ -87,12 +88,11 @@ public class Main {
         if (usuario == null) {
             this.usuario = null;
             // Criamos a interface de login novamente
-            prepararLogin();
+            setJanelaPrincipal(new JanelaLogin());
         } else {
             this.usuario = usuario;
             // Criamos a interface de um usuário logado
-            janela.add(new PainelUsuario(janela, usuario));
-            janela.setVisible(true);
+            setJanelaPrincipal(new JanelaUsuario(usuario));
         }
     }
 }

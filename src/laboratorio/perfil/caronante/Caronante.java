@@ -59,6 +59,7 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
         CaronaCaronante caronaCaronante = new CaronaCaronante(this, null);
         CaronaPublica carona = new CaronaPublica(caronaCaronante, latitudeEncontro, longitudeEncontro, latitudeDestino,
                 longitudeDestino, horaDiaEncontro, valor);
+        caronaCaronante.setCarona(carona);
         this.caronas.add(caronaCaronante);
         return carona;
     }
@@ -69,6 +70,7 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
         CaronaCaronante caronaCaronante = new CaronaCaronante(this, null);
         CaronaPrivada carona = new CaronaPrivada(caronaCaronante, latitudeEncontro, longitudeEncontro, latitudeDestino,
                 longitudeDestino, horaDiaEncontro, valor);
+        caronaCaronante.setCarona(carona);
         this.caronas.add(caronaCaronante);
         return carona;
     }

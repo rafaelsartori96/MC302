@@ -59,7 +59,6 @@ public abstract class HelperDialog {
         boolean faltaConfirmar = true;
         do {
             JPasswordField campoSenha = new JPasswordField();
-            campoSenha.setEchoChar('*');
             int opcao = JOptionPane.showConfirmDialog(
                     null, campoSenha, "Digite a nova senha do usuário:",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
@@ -68,6 +67,11 @@ public abstract class HelperDialog {
             /* Cancelamos caso não queira digitar a senha */
             if (opcao != 0) {
                 // Voltamos ao painel de login
+                return null;
+            }
+
+            if (campoSenha.getPassword().length == 0) {
+                HelperDialog.popupErro("Senha inválida!", "O campo de senha não pode ser deixado em branco!");
                 return null;
             }
 
@@ -89,69 +93,5 @@ public abstract class HelperDialog {
             }
         } while (faltaConfirmar);
         return null;
-    }
-
-    public static Perfil pedirPerfil() {
-        char sexo;
-        Object respostaSexo = JOptionPane.showInputDialog(
-                null,
-                "Qual seu sexo?",
-                "Criando o perfil",
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new String[]{
-                        "Masculino",
-                        "Feminino"
-                },
-                null
-        );
-        if (respostaSexo == null) {
-            return null;
-        } else {
-            sexo = respostaSexo.equals("Masculino") ? 'm' : 'f';
-        }
-
-        String dataNascimento = JOptionPane.showInputDialog(
-                "Qual a sua data de nascimento? Utilize o formato 23/12/2018.");
-        if (isInvalid(dataNascimento)) {
-            return null;
-        }
-
-        String cidade = JOptionPane.showInputDialog("Qual a sua cidade?");
-        if (isInvalid(cidade)) {
-            return null;
-        }
-
-        String estado = JOptionPane.showInputDialog("Qual o seu estado?");
-        if (isInvalid(estado)) {
-            return null;
-        }
-
-        String telefone = JOptionPane.showInputDialog("Qual o seu telefone?");
-        if (isInvalid(telefone)) {
-            return null;
-        }
-
-        boolean fumante;
-        Object respostaFumante = JOptionPane.showInputDialog(
-                null,
-                "Você fuma?",
-                "Criando o perfil",
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new String[]{
-                        "Sim",
-                        "Não"
-                },
-                null
-        );
-        if (respostaFumante == null) {
-            return null;
-        } else {
-            fumante = respostaFumante.equals("Sim");
-        }
-
-        /* Criamos o perfil associando-o a um usuário */
-        return new Perfil(null, null, null, sexo, dataNascimento, cidade, estado, telefone, fumante);
     }
 }

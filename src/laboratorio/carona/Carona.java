@@ -150,6 +150,11 @@ public abstract class Carona {
             return false;
         }
 
+        /* Se adicionamos o método de graça, limpamos os outros métodos */
+        if(metodoPagamento == MetodoPagamento.GRATIS) {
+            metodoPagamentos.clear();
+        }
+
         metodoPagamentos.add(metodoPagamento);
         return true;
     }
@@ -235,7 +240,19 @@ public abstract class Carona {
     }
 
     public enum Tipo {
-        PUBLICA,
-        PRIVADA
+
+        PUBLICA("Pública"),
+        PRIVADA("Privada");
+
+        private final String nomeDisplay;
+
+        Tipo(String nomeDisplay) {
+            this.nomeDisplay = nomeDisplay;
+        }
+
+        @Override
+        public String toString() {
+            return nomeDisplay;
+        }
     }
 }

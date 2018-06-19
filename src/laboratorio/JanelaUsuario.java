@@ -1,0 +1,858 @@
+package laboratorio;
+
+import laboratorio.carona.*;
+import laboratorio.grupo.*;
+import laboratorio.pagamento.*;
+import laboratorio.perfil.*;
+import laboratorio.perfil.caronante.*;
+import laboratorio.perfil.caroneiro.*;
+import laboratorio.usuario.*;
+import laboratorio.utilidades.*;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.List;
+
+public class JanelaUsuario extends JFrame {
+
+    private final Usuario usuario;
+    private final JTabbedPane painel;
+
+    public JanelaUsuario(final Usuario usuario) {
+        super();
+
+        setTitle("Sistema de caronas");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        this.usuario = usuario;
+        this.painel = new JTabbedPane();
+
+        /* Adicionamos as informações do usuário */
+        criarPainelUsuario();
+
+        /* Adicionamos as informações de perfil */
+        criarPainelPerfil();
+
+        add(painel, BorderLayout.CENTER);
+        pack();
+    }
+
+    private void criarPainelUsuario() {
+        /* Painel principal do usuário */
+        JPanel painelUsuario = new JPanel();
+        painelUsuario.setLayout(new BoxLayout(painelUsuario, BoxLayout.Y_AXIS));
+
+        /* Adicionamos o painel de informações do usuário */
+        painelUsuario.add(criarPaineisTexto(
+                "Nome: " + usuario.getNome(),
+                "E-mail: " + usuario.getEmail()
+        ));
+
+        /* Criamos um painel com a lista de grupos a que o usuário pertence */
+        JPanel painelGrupos = new JPanel(new BorderLayout());
+
+        /* Criamos a tabela */
+        ModeloTabela<Grupo> modeloTabela = new ModeloTabela<>() {
+            @Override
+            public int getColumnCount() {
+                return 4;
+            }
+
+            @Override
+            public String getColumnName(int column) {
+                switch (column) {
+                    case 0:
+                        return "Nome";
+                    case 1:
+                        return "Descrição";
+                    case 2:
+                        return "Número de membros";
+                    case 3:
+                        return "Dono";
+                    default:
+                        return null;
+                }
+            }
+
+            @Override
+            public Object getColumn(Grupo object, int column) {
+                switch (column) {
+                    case 0:
+                        return object.getNome();
+                    case 1:
+                        return object.getDescricao();
+                    case 2:
+                        return object.getMembros().size();
+                    case 3:
+                        return object.getDono() != null ? object.getDono().getNome() : "-";
+                    default:
+                        return null;
+                }
+            }
+
+            @Override
+            public List<Grupo> getList() {
+                return usuario.getGrupos();
+            }
+        };
+        JTable tabelaGrupos = new JTable(modeloTabela);
+        tabelaGrupos.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+        /* Adicionamos o header da tabela */
+        painelGrupos.add(tabelaGrupos.getTableHeader(), BorderLayout.NORTH);
+
+        /* Criamos um scroll para a tabela */
+        JScrollPane scrollTabela = new JScrollPane(
+                tabelaGrupos,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+        );
+        painelGrupos.add(scrollTabela, BorderLayout.CENTER);
+
+        /* Criamos o painel para os botões dos grupos */
+        JPanel opcoesGrupos = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        JButton criarGrupo = new JButton("Criar grupo");
+        criarGrupo.addActionListener(event -> {
+        });
+        opcoesGrupos.add(criarGrupo);
+
+        JButton modificarGrupo = new JButton("Modificar grupo");
+        modificarGrupo.addActionListener(event -> {
+        });
+        opcoesGrupos.add(modificarGrupo);
+
+//        JButton criarGrupo = new JButton("Criar grupo");
+//        criarGrupo.addActionListener(event ->{
+//        });
+//        opcoesGrupos.add(criarGrupo);
+
+        /* Adicionamos as opções de grupo ao painel de grupos */
+        painelGrupos.add(opcoesGrupos, BorderLayout.SOUTH);
+
+        /* Adicionamos o painel de grupos na interface do usuário */
+        painelUsuario.add(painelGrupos);
+
+        /* Criamos um painel com botões de controle de usuário */
+        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        JButton alterarSenha = new JButton("Alterar senha");
+        alterarSenha.addActionListener(event -> {
+            String senha = HelperDialog.pedirConfirmarSenha();
+            if (senha != null) {
+                usuario.setSenha(senha);
+                HelperDialog.popupInformacao("Senha alterada!", "Sua senha foi alterada com sucesso! #sucesso");
+            }
+        });
+        painelBotoes.add(alterarSenha);
+
+        JButton alterarUsuario = new JButton("Modificar usuário");
+        alterarUsuario.addActionListener(new CriarUsuarioPopup(this, usuario) {
+            @Override
+            public void redesenhar() {
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+            }
+        });
+        painelBotoes.add(alterarUsuario);
+
+        JButton sair = new JButton("Log out");
+        sair.addActionListener(event -> Main.getMain().efetuarLogin(null));
+        painelBotoes.add(sair);
+
+        /* Adicionamos o painel de botões ao painel do usuário */
+        painelUsuario.add(painelBotoes);
+
+        /* Criamos a aba usuário com este painel */
+        painel.addTab("Usuário", painelUsuario);
+    }
+
+    private void criarPainelPerfil() {
+        /* Painel principal do perfil */
+        JPanel painelPerfil = new JPanel();
+
+        Perfil perfil = usuario.getPerfil();
+        if (perfil == null) {
+            painelPerfil.setLayout(new BorderLayout());
+
+            /* Caso não exista perfil, criamos um botão único no centro do painel do perfil */
+            JButton criarPerfil = new JButton("Criar perfil");
+            criarPerfil.addActionListener(new CriarPerfilPopup(this));
+
+            /* Adicionamos o botão ao centro do painel de perfil */
+            painelPerfil.add(criarPerfil, BorderLayout.CENTER);
+
+            /* Adicionamos a aba de perfil */
+            painel.addTab("Perfil", painelPerfil);
+        } else {
+            painelPerfil.setLayout(new BoxLayout(painelPerfil, BoxLayout.Y_AXIS));
+
+            /* Adicionamos o painel que contém as informações do perfil */
+            painelPerfil.add(criarPaineisTexto(
+                    "Sexo: " + (Character.toLowerCase(perfil.getSexo()) == 'f' ? "feminino" : "masculino"),
+                    "Fumante? " + (perfil.isFumante() ? "sim" : "não"),
+                    "Data de nascimento: " + perfil.getDataNascimento(),
+                    "Telefone: " + perfil.getTelefone(),
+                    "Localização: " + perfil.getCidade() + "/" + perfil.getEstado()
+            ));
+
+            /* Adicionar botões de controle de perfil */
+            JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+            JButton modificarPerfil = new JButton("Modificar perfil");
+            modificarPerfil.addActionListener(new CriarPerfilPopup(this));
+            painelBotoes.add(modificarPerfil);
+
+            /* Adicionamos o painel de botões ao painel do perfil */
+            painelPerfil.add(painelBotoes);
+
+            /* Criamos a aba de perfil */
+            painel.addTab("Perfil", painelPerfil);
+
+            /* Criamos as abas de Caronante e Caroneiro, já que o perfil existe */
+            criarPainelCaronante(perfil);
+            criarPainelCaroneiro(perfil);
+        }
+    }
+
+    private void criarPainelCaronante(Perfil perfil) {
+        /* Painel principal do perfil de Caronante */
+        JPanel painelCaronante = new JPanel();
+
+        /* Criamos o painel de botões de controle do perfil */
+        if (perfil.getCaronante() == null) {
+            painelCaronante.setLayout(new BorderLayout());
+
+            /* Adicionamos um painel que contém apenas o botão no centro */
+            JButton criarCaronante = new JButton("Criar caronante");
+            criarCaronante.addActionListener(new CriarCaronantePopup(this, perfil));
+            painelCaronante.add(criarCaronante, BorderLayout.CENTER);
+
+            /* Deixamos para o fim do método para criar a aba */
+        } else {
+            Caronante caronante = perfil.getCaronante();
+            painelCaronante.setLayout(new BoxLayout(painelCaronante, BoxLayout.Y_AXIS));
+
+            /* Adicionamos painel com informações */
+            painelCaronante.add(criarPaineisTexto(
+                    "Carteira de motorista: " + caronante.getCarteiraMotorista(),
+                    "Avaliação média: " + caronante.getAvaliacao(),
+                    "Gênero musical favorito: " + caronante.getGeneroMusicalFavorito(),
+                    "Veículo: " + caronante.getMarcaVeiculo() + " " + caronante.getModeloVeiculo() + " placa " +
+                            caronante.getPlacaVeiculo(),
+                    "Assentos disponíveis: " + caronante.getAssentosDisponiveis(),
+                    "Tempo habilitado: " + caronante.getTempoHabilitacao()
+            ));
+
+            /* Criamos o painel da tabela de caronas */
+            JPanel painelTabela = new JPanel();
+            painelTabela.setLayout(new BorderLayout());
+
+            /* Criamos a tabela de carona */
+            ModeloTabela<Carona> modeloTabela = new ModeloTabela<>() {
+                @Override
+                public int getColumnCount() {
+                    return 6;
+                }
+
+                @Override
+                public String getColumnName(int column) {
+                    switch (column) {
+                        case 0:
+                            return "Encontro";
+                        case 1:
+                            return "Destino";
+                        case 2:
+                            return "Hora e data";
+                        case 3:
+                            return "Assentos disponíveis";
+                        case 4:
+                            return "Tipo";
+                        case 5:
+                            return "Valor";
+                        default:
+                            return null;
+                    }
+                }
+
+                @Override
+                public Object getColumn(Carona object, int column) {
+                    switch (column) {
+                        case 0:
+                            return object.getLatitudeEncontro() + ", " + object.getLongitudeEncontro();
+                        case 1:
+                            return object.getLatitudeDestino() + ", " + object.getLongitudeDestino();
+                        case 2:
+                            return object.getHoraDiaEncontro();
+                        case 3:
+                            return object.getAssentosDisponiveis();
+                        case 4:
+                            return object.getTipo().toString();
+                        case 5:
+                            return object.getValor();
+                        default:
+                            return null;
+                    }
+                }
+
+                @Override
+                public List<Carona> getList() {
+                    return caronante.getCaronas();
+                }
+            };
+            JTable tabelaCaronas = new JTable(modeloTabela);
+            tabelaCaronas.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+            /* Adicionamos o header da tabela */
+            painelTabela.add(tabelaCaronas.getTableHeader(), BorderLayout.NORTH);
+            JScrollPane scrollTabelaCarona = new JScrollPane(
+                    tabelaCaronas,
+                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+            );
+            /* Adicionamos a tabela com um scroll massa */
+            painelTabela.add(scrollTabelaCarona, BorderLayout.CENTER);
+
+            /* Criamos um painel para botões */
+            JPanel opcoesCaronas = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+            /* Adicionamos um botão para adicionar a carona a algum grupo */
+            JButton adicionarGrupo = new JButton("Adicionar grupo");
+            adicionarGrupo.addActionListener(event -> {
+            });
+            opcoesCaronas.add(adicionarGrupo);
+
+            /* Adicionamos um botão para modificar a carona selecionada */
+            JButton modificarCarona = new JButton("Modificar carona");
+            modificarCarona.addActionListener(new CriarCaronaPopup(this, perfil, modeloTabela, tabelaCaronas));
+            opcoesCaronas.add(modificarCarona);
+
+            /* Adicionamos um botão para avaliar caronantes da carona selecionada */
+            JButton avaliarCaronantes = new JButton("Avaliar caronantes");
+            avaliarCaronantes.addActionListener(event -> {
+            });
+            opcoesCaronas.add(avaliarCaronantes);
+
+            /* Adicionamos os botões das caronas */
+            painelTabela.add(opcoesCaronas, BorderLayout.SOUTH);
+
+            /* Finalmente, adicionamos a tabela ao painel principal */
+            painelCaronante.add(painelTabela);
+
+            JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+            JButton alterarPerfil = new JButton("Alterar caronante");
+            alterarPerfil.addActionListener(new CriarCaronantePopup(this, perfil));
+            painelBotoes.add(alterarPerfil);
+
+            JButton oferecerCarona = new JButton("Oferecer carona");
+            oferecerCarona.addActionListener(new CriarCaronaPopup(this, perfil));
+            painelBotoes.add(oferecerCarona);
+
+            /* Adicionamos o painel de botões ao painel do perfil */
+            painelCaronante.add(painelBotoes);
+
+            /* Deixamos para o fim do método para adicionar a aba */
+        }
+
+        /* Adicionamos a aba */
+        painel.addTab("Caronante", painelCaronante);
+    }
+
+    private void criarPainelCaroneiro(Perfil perfil) {
+        /* Criamos o painel do perfil */
+        JPanel painelCaroneiro = new JPanel();
+
+        if (perfil.getCaroneiro() == null) {
+            painelCaroneiro.setLayout(new BorderLayout());
+
+            /* Criamos apenas um botão para criar o perfil */
+            JButton criarCaroneiro = new JButton("Criar caroneiro");
+            criarCaroneiro.addActionListener(new CriarCaroneiroPopup(this, perfil));
+
+            /* Adicionamos o painel para o painel do perfil */
+            painelCaroneiro.add(criarCaroneiro, BorderLayout.CENTER);
+
+            /* Deixamos para o fim do método para adicionar a aba */
+        } else {
+            Caroneiro caroneiro = perfil.getCaroneiro();
+            painelCaroneiro.setLayout(new BoxLayout(painelCaroneiro, BoxLayout.Y_AXIS));
+
+            /* Adicionamos o painel de informações */
+            painelCaroneiro.add(criarPaineisTexto(
+                    "Cartão de crédito: " + (caroneiro.getCartaoDeCredito() == null ? "não registrado" :
+                            caroneiro.getCartaoDeCredito()),
+                    "Paga em dinheiro: " + (caroneiro.isPagamentoEmDinheiro() ? "sim" : "não")
+            ));
+
+            /* Criamos o painel de botões de controle de perfil */
+            JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+            JButton alterarPerfil = new JButton("Alterar caroneiro");
+            alterarPerfil.addActionListener(new CriarCaroneiroPopup(this, perfil));
+            painelBotoes.add(alterarPerfil);
+
+            /* Adicionamos o painel de botões */
+            painelCaroneiro.add(painelBotoes);
+
+            /* Deixamos para o fim do método para adicionar a aba */
+        }
+
+        painel.addTab("Caroneiro", painelCaroneiro);
+    }
+
+    private class CriarPerfilPopup implements ActionListener {
+
+        private final JFrame janela;
+
+        CriarPerfilPopup(JFrame janela) {
+            this.janela = janela;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            JPanel formulario = new JPanel();
+            formulario.setLayout(new BoxLayout(formulario, BoxLayout.Y_AXIS));
+
+            /* Criamos um painel horizontal para cada pergunta */
+
+            JPanel painelCidadeEstado = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelCidadeEstado.add(new JLabel("Cidade, estado:"));
+            JTextField cidade = new JTextField(13);
+            cidade.setToolTipText("Entre com o nome da cidade.");
+            painelCidadeEstado.add(cidade);
+            JTextField estado = new JTextField(16);
+            estado.setToolTipText("Entre com o nome do estado.");
+            painelCidadeEstado.add(estado);
+            formulario.add(painelCidadeEstado);
+
+            JPanel painelDataNascimento = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelDataNascimento.add(new JLabel("Data de nascimento:"));
+            JTextField dataNascimento = new JTextField(13);
+            dataNascimento.setToolTipText("Entre com sua data de nascimento. Por exemplo, 24/11/1995.");
+            painelDataNascimento.add(dataNascimento);
+            formulario.add(painelDataNascimento);
+
+            JPanel painelTelefone = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelTelefone.add(new JLabel("Telefone:"));
+            JTextField telefone = new JTextField(13);
+            telefone.setToolTipText("Entre com o seu número de telefone.");
+            painelTelefone.add(telefone);
+            formulario.add(painelTelefone);
+
+            JPanel painelSexo = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelSexo.add(new JLabel("Sexo:"));
+            JComboBox<String> sexo = new JComboBox<>(new String[]{"Masculino", "Feminino"});
+            painelSexo.add(sexo);
+            formulario.add(painelSexo);
+
+            JCheckBox fumante = new JCheckBox("Fumante");
+            formulario.add(fumante);
+
+            Perfil perfil = usuario.getPerfil();
+            /* Adicionamos informações do caroneiro caso exista perfil */
+            if (perfil != null) {
+                cidade.setText(perfil.getCidade());
+                estado.setText(perfil.getEstado());
+                dataNascimento.setText(perfil.getDataNascimento());
+                fumante.setSelected(perfil.isFumante());
+                sexo.setSelectedIndex(Character.toLowerCase(perfil.getSexo()) == 'm' ? 0 : 1);
+                telefone.setText(perfil.getTelefone());
+            }
+
+            int opcao = JOptionPane.showConfirmDialog(
+                    janela, formulario, "Dados do perfil", JOptionPane.OK_CANCEL_OPTION);
+
+            if (opcao == 0) {
+                /* Criamos o perfil ou atualizamos seus atributos */
+                if (perfil == null) {
+                    usuario.setPerfil(new Perfil(
+                            null,
+                            null,
+                            null,
+                            sexo.getSelectedIndex() == 0 ? 'm' : 'f',
+                            dataNascimento.getText(),
+                            cidade.getText(),
+                            estado.getText(),
+                            telefone.getText(),
+                            fumante.isSelected()
+                    ));
+                } else {
+                    perfil.setCidade(cidade.getText());
+                    perfil.setEstado(estado.getText());
+                    perfil.setDataNascimento(dataNascimento.getText());
+                    perfil.setSexo(sexo.getSelectedIndex() == 0 ? 'm' : 'f');
+                    perfil.setFumante(fumante.isSelected());
+                    perfil.setTelefone(telefone.getText());
+                }
+
+                /* Reconstruímos a UI */
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+            }
+        }
+    }
+
+    private class CriarCaronaPopup implements ActionListener {
+
+        private final JFrame janela;
+        private final Perfil perfil;
+
+        private final ModeloTabela<Carona> modelo;
+        private final JTable tabela;
+
+        private CriarCaronaPopup(JFrame janela, Perfil perfil) {
+            this.janela = janela;
+            this.perfil = perfil;
+            this.modelo = null;
+            this.tabela = null;
+        }
+
+        private CriarCaronaPopup(JFrame janela, Perfil perfil, ModeloTabela<Carona> modelo, JTable tabela) {
+            this.janela = janela;
+            this.perfil = perfil;
+            this.modelo = modelo;
+            this.tabela = tabela;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            JPanel formulario = new JPanel();
+            formulario.setLayout(new BoxLayout(formulario, BoxLayout.Y_AXIS));
+
+            /*
+             * Para cada linha do formulário, fazemos um layout horizontal com label e entradas de texto
+             */
+
+            Carona carona = null;
+            if (modelo != null) {
+                carona = modelo.getObject(tabela.getSelectedRow());
+            }
+
+            JCheckBox caronaPublica = null;
+            if (carona == null) {
+                JPanel painelTipo = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                caronaPublica = new JCheckBox("Carona pública");
+                caronaPublica.setToolTipText("Caso não, será privada.");
+                painelTipo.add(caronaPublica);
+                formulario.add(painelTipo);
+            }
+
+            JPanel painelEncontro = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelEncontro.add(new JLabel("Latitude e longitude do encontro:"));
+            JTextField latitudeEncontro = new JTextField(10);
+            latitudeEncontro.setToolTipText("51,23456");
+            painelEncontro.add(latitudeEncontro);
+            JTextField longitudeEncontro = new JTextField(10);
+            longitudeEncontro.setToolTipText("14,14583");
+            painelEncontro.add(longitudeEncontro);
+            formulario.add(painelEncontro);
+
+            JPanel painelDestino = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelDestino.add(new JLabel("Latitude e longitude do destino:"));
+            JTextField latitudeDestino = new JTextField(10);
+            latitudeDestino.setToolTipText("51,23456");
+            painelDestino.add(latitudeDestino);
+            JTextField longitudeDestino = new JTextField(10);
+            longitudeDestino.setToolTipText("14,14583");
+            painelDestino.add(longitudeDestino);
+            formulario.add(painelDestino);
+
+            JPanel painelHoraData = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelHoraData.add(new JLabel("Hora e data de encontro:"));
+            JTextField horaDataEncontro = new JTextField(16);
+            horaDataEncontro.setToolTipText("18h 15/12/2012");
+            painelHoraData.add(horaDataEncontro);
+            formulario.add(painelHoraData);
+
+            JPanel painelValor = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelValor.add(new JLabel("Valor da carona em reais:"));
+            JTextField valorCarona = new JTextField(5);
+            valorCarona.setToolTipText("17,99 ou 0,00");
+            painelValor.add(valorCarona);
+            formulario.add(painelValor);
+
+            JPanel painelMoedas = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            JCheckBox dinheiro = new JCheckBox("Dinheiro");
+            dinheiro.setToolTipText("Se a carona irá aceitar dinheiro como forma de pagamento.");
+            painelMoedas.add(dinheiro);
+            JCheckBox cartaoDeCredito = new JCheckBox("Cartão de crédito");
+            cartaoDeCredito.setToolTipText("Se a carona irá aceitar cartão de crédito como forma de pagamento.");
+            painelMoedas.add(cartaoDeCredito);
+            formulario.add(painelMoedas);
+
+            if (carona != null) {
+                latitudeEncontro.setText(String.valueOf(carona.getLatitudeEncontro()));
+                longitudeEncontro.setText(String.valueOf(carona.getLongitudeEncontro()));
+                latitudeDestino.setText(String.valueOf(carona.getLatitudeDestino()));
+                longitudeDestino.setText(String.valueOf(carona.getLongitudeDestino()));
+                horaDataEncontro.setText(carona.getHoraDiaEncontro());
+                valorCarona.setText(String.valueOf(carona.getValor()));
+                if (carona.checarExistenciaFormaPagamento(MetodoPagamento.CARTAO_DE_CREDITO)) {
+                    cartaoDeCredito.setSelected(true);
+                }
+                if (carona.checarExistenciaFormaPagamento(MetodoPagamento.DINHEIRO)) {
+                    dinheiro.setSelected(true);
+                }
+                if (carona.checarExistenciaFormaPagamento(MetodoPagamento.GRATIS)) {
+                    cartaoDeCredito.setSelected(false);
+                    dinheiro.setSelected(false);
+                    valorCarona.setText("0");
+                }
+            }
+
+            /* Mostramos ao usuário esse painel */
+            int opcao = JOptionPane.showConfirmDialog(
+                    janela, formulario, "Dados da carona", JOptionPane.OK_CANCEL_OPTION
+            );
+
+            /* Se o usuário apertou OK... */
+            if (opcao == 0) {
+                try {
+                    Float valor = Float.valueOf(valorCarona.getText().replace(",", "."));
+
+                    /* Criamos uma carona pública ou privada dependendo da opção selecionada */
+                    if (carona == null) {
+                        if (caronaPublica.isSelected()) {
+                            carona = perfil.getCaronante().oferecerCaronaPublica(
+                                    Double.valueOf(latitudeDestino.getText().replace(",", ".")),
+                                    Double.valueOf(longitudeEncontro.getText().replace(",", ".")),
+                                    Double.valueOf(latitudeDestino.getText().replace(",", ".")),
+                                    Double.valueOf(longitudeDestino.getText().replace(",", ".")),
+                                    horaDataEncontro.getText(),
+                                    valor
+                            );
+                        } else {
+                            carona = perfil.getCaronante().oferecerCaronaPrivada(
+                                    Double.valueOf(latitudeDestino.getText().replace(",", ".")),
+                                    Double.valueOf(longitudeEncontro.getText().replace(",", ".")),
+                                    Double.valueOf(latitudeDestino.getText().replace(",", ".")),
+                                    Double.valueOf(longitudeDestino.getText().replace(",", ".")),
+                                    horaDataEncontro.getText(),
+                                    valor
+                            );
+                        }
+                    } else {
+                        carona.setLatitudeEncontro(Double.valueOf(latitudeEncontro.getText()));
+                        carona.setLongitudeEncontro(Double.valueOf(longitudeEncontro.getText()));
+                        carona.setLatitudeDestino(Double.valueOf(latitudeDestino.getText()));
+                        carona.setLongitudeDestino(Double.valueOf(longitudeDestino.getText()));
+                        carona.setHoraDiaEncontro(horaDataEncontro.getText());
+                        carona.setValor(valor);
+                    }
+
+                    /* Em ambas as caronas, adicionamos os métodos de pagamento desejados */
+                    boolean metodoPagamentoPresente = false;
+                    if (dinheiro.isSelected() && valor > 0) {
+                        carona.adicionarFormaPagamento(MetodoPagamento.DINHEIRO);
+                        metodoPagamentoPresente = true;
+                    }
+                    if (cartaoDeCredito.isSelected() && valor > 0) {
+                        carona.adicionarFormaPagamento(MetodoPagamento.CARTAO_DE_CREDITO);
+                        metodoPagamentoPresente = true;
+                    }
+
+                    if (valor == 0 || !metodoPagamentoPresente) {
+                        carona.adicionarFormaPagamento(MetodoPagamento.GRATIS);
+                        carona.setValor(0);
+                    }
+
+                    /* Reconstruímos a UI */
+                    Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                } catch (NumberFormatException e) {
+                    HelperDialog.popupErro(
+                            "Formatação inválida!", "Os números não respeitam o formato 4,32 ou 4.32!");
+                }
+            }
+        }
+    }
+
+    private class CriarCaronantePopup implements ActionListener {
+
+        private final JFrame janela;
+        private final Perfil perfil;
+
+        CriarCaronantePopup(JFrame janela, Perfil perfil) {
+            this.janela = janela;
+            this.perfil = perfil;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            JPanel formulario = new JPanel();
+            formulario.setLayout(new BoxLayout(formulario, BoxLayout.Y_AXIS));
+
+            /* De maneira análoga ao outro popup */
+
+            JPanel painelTempoHabilitacao = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelTempoHabilitacao.add(new JLabel("Tempo de habilitação em anos:"));
+            JTextField tempoHabilitacao = new JTextField(3);
+            tempoHabilitacao.setToolTipText("Por exemplo, 5");
+            painelTempoHabilitacao.add(tempoHabilitacao);
+            formulario.add(painelTempoHabilitacao);
+
+            JPanel painelGeneroMusical = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelGeneroMusical.add(new JLabel("Gênero músical favorito:"));
+            JTextField generoMusicalFavorito = new JTextField(26);
+            generoMusicalFavorito.setToolTipText("Por exemplo, o seu gênero músical favorito");
+            painelGeneroMusical.add(generoMusicalFavorito);
+            formulario.add(painelGeneroMusical);
+
+            JPanel painelCarro = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelCarro.add(new JLabel("Marca:"));
+            JTextField marcaVeiculo = new JTextField(20);
+            marcaVeiculo.setToolTipText("Por exemplo, Chevrolet");
+            painelCarro.add(marcaVeiculo);
+            painelCarro.add(new JLabel("Modelo:"));
+            JTextField modeloVeiculo = new JTextField(20);
+            modeloVeiculo.setToolTipText("Por exemplo, Prisma");
+            painelCarro.add(modeloVeiculo);
+            formulario.add(painelCarro);
+
+            JPanel painelJuridico = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelJuridico.add(new JLabel("Assentos disponíveis:"));
+            JTextField assentosDisponiveis = new JTextField(3);
+            assentosDisponiveis.setToolTipText("Por exemplo, 4");
+            painelJuridico.add(assentosDisponiveis);
+            painelJuridico.add(new JLabel("Placa do veículo:"));
+            JTextField placaVeiculo = new JTextField(9);
+            placaVeiculo.setToolTipText("ABC-1234");
+            painelJuridico.add(placaVeiculo);
+
+            Caronante caronante = perfil.getCaronante();
+            /* Permitimos a escrita de carteira de motorista apenas para o usuário que está se registrando */
+            JTextField carteiraMotorista = null;
+
+            /* Adicionamos informações do caroneiro caso exista perfil */
+            if (caronante != null) {
+                tempoHabilitacao.setText(String.valueOf(caronante.getTempoHabilitacao()));
+                generoMusicalFavorito.setText(caronante.getGeneroMusicalFavorito());
+                marcaVeiculo.setText(caronante.getMarcaVeiculo());
+                modeloVeiculo.setText(caronante.getModeloVeiculo());
+                placaVeiculo.setText(caronante.getPlacaVeiculo());
+                assentosDisponiveis.setText(String.valueOf(caronante.getAssentosDisponiveis()));
+            } else {
+                // Atributo não pode ser alterado
+                painelJuridico.add(new JLabel("Carteira de motorista:"));
+                carteiraMotorista = new JTextField(14);
+                painelJuridico.add(carteiraMotorista);
+            }
+
+            formulario.add(painelJuridico);
+
+            int opcao = JOptionPane.showConfirmDialog(
+                    janela, formulario, "Dados do caronante", JOptionPane.OK_CANCEL_OPTION);
+
+            if (opcao == 0) {
+                try {
+                    /* Criamos o perfil ou atualizamos seus atributos */
+                    if (caronante == null) {
+                        perfil.setCaronante(new Caronante(
+                                Integer.valueOf(tempoHabilitacao.getText()),
+                                generoMusicalFavorito.getText(),
+                                placaVeiculo.getText(),
+                                carteiraMotorista.getText(),
+                                marcaVeiculo.getText(),
+                                modeloVeiculo.getText(),
+                                Integer.valueOf(assentosDisponiveis.getText())
+                        ));
+                    } else {
+                        caronante.setTempoHabilitacao(Integer.valueOf(tempoHabilitacao.getText()));
+                        caronante.setGeneroMusicalFavorito(generoMusicalFavorito.getText());
+                        caronante.setMarcaVeiculo(marcaVeiculo.getText());
+                        caronante.setModeloVeiculo(modeloVeiculo.getText());
+                        caronante.setAssentosDisponiveis(Integer.valueOf(assentosDisponiveis.getText()));
+                    }
+
+                    /* Reconstruímos a UI */
+                    Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                } catch (NumberFormatException exception) {
+                    HelperDialog.popupErro(
+                            "Formatação inválida!", "O número deve ser inteiro!");
+                }
+            }
+        }
+    }
+
+    private class CriarCaroneiroPopup implements ActionListener {
+
+        private final JFrame janela;
+
+        private final Perfil perfil;
+
+        CriarCaroneiroPopup(JFrame janela, Perfil perfil) {
+            this.janela = janela;
+            this.perfil = perfil;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            JPanel formulario = new JPanel();
+            formulario.setLayout(new BoxLayout(formulario, BoxLayout.Y_AXIS));
+
+            /* De maneira análoga ao outro popup */
+
+            JPanel painelCartaoCredito = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelCartaoCredito.add(new JLabel("Cartão de crédito:"));
+            JTextField cartaoDeCredito = new JTextField(26);
+            cartaoDeCredito.setToolTipText("Preencha apenas se houver");
+            painelCartaoCredito.add(cartaoDeCredito);
+            formulario.add(painelCartaoCredito);
+
+            JCheckBox pagamentoEmDinheiro = new JCheckBox("Pagamento em dinheiro");
+            formulario.add(pagamentoEmDinheiro);
+
+            Caroneiro caroneiro = perfil.getCaroneiro();
+
+            /* Adicionamos informações do caroneiro caso exista perfil */
+            if (caroneiro != null) {
+                if (caroneiro.getCartaoDeCredito() != null) {
+                    cartaoDeCredito.setText(caroneiro.getCartaoDeCredito());
+                }
+                pagamentoEmDinheiro.setSelected(caroneiro.isPagamentoEmDinheiro());
+            }
+
+            int opcao = JOptionPane.showConfirmDialog(
+                    janela, formulario, "Dados do caroneiro", JOptionPane.OK_CANCEL_OPTION);
+
+            if (opcao == 0) {
+                try {
+                    /* Criamos o perfil ou atualizamos seus atributos */
+                    if (caroneiro == null) {
+                        caroneiro = new Caroneiro(pagamentoEmDinheiro.isSelected());
+                        if (cartaoDeCredito.getText().length() > 0) {
+                            caroneiro.setCartaoDeCredito(cartaoDeCredito.getText());
+                        }
+                        perfil.setCaroneiro(caroneiro);
+                    } else {
+                        caroneiro.setCartaoDeCredito(cartaoDeCredito.getText());
+                        caroneiro.setPagamentoEmDinheiro(pagamentoEmDinheiro.isSelected());
+                    }
+
+                    /* Reconstruímos a UI */
+                    Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                } catch (NumberFormatException exception) {
+                    HelperDialog.popupErro("Formatação inválida!", "O número de cartão deve ser inteiro!");
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Cria um painel com todas as linhas
+     *
+     * @param textos linhas de texto
+     * @return um painel que contém todos os textos
+     */
+    private static JPanel criarPaineisTexto(String... textos) {
+        JPanel painelEsquerda = new JPanel(new BorderLayout());
+        JPanel linhas = new JPanel();
+        linhas.setLayout(new BoxLayout(linhas, BoxLayout.Y_AXIS));
+        for (String texto : textos) {
+            linhas.add(new JLabel(texto));
+        }
+        painelEsquerda.add(linhas);
+        return painelEsquerda;
+    }
+
+}

@@ -20,5 +20,9 @@ public abstract class ModeloTabela<T> extends AbstractTableModel {
 
     public abstract Object getColumn(T object, int column);
 
+    public T getObject(int row) {
+        return getList().get(row);
+    }
+
     public abstract List<T> getList();
 }

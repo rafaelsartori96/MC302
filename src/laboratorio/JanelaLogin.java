@@ -8,19 +8,18 @@ import java.awt.*;
 import java.io.*;
 import java.util.List;
 
-public class PainelLogin extends JPanel {
+public class JanelaLogin extends JFrame {
 
-    private final JTable tabelaUsuarios;
-
-    public PainelLogin(final JFrame janela) {
+    public JanelaLogin() {
         super();
 
-        /* Estrutura geral */
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+//        janela.setMinimumSize(new Dimension(600, 500));
+        setTitle("Sistema de caronas");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
-        /* Haverá primeiro um painel com a tabela de usuários */
-        JPanel painelUsuarios = new JPanel(new BorderLayout());
-
+        JPanel painelTabela = new JPanel(new BorderLayout());
         /* Construímos a tabela */
         ModeloTabela<Usuario> modeloTabela = new ModeloTabela<>() {
             @Override
@@ -57,10 +56,10 @@ public class PainelLogin extends JPanel {
                 return Main.getMain().getGerenciadorUsuario().getUsuarios();
             }
         };
-        tabelaUsuarios = new JTable(modeloTabela);
+        JTable tabelaUsuarios = new JTable(modeloTabela);
         tabelaUsuarios.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
         // Adicionamos o header da tabela no topo
-        painelUsuarios.add(tabelaUsuarios.getTableHeader(), BorderLayout.NORTH);
+        painelTabela.add(tabelaUsuarios.getTableHeader(), BorderLayout.NORTH);
 
         JScrollPane tabelaScroll = new JScrollPane(
                 tabelaUsuarios,
@@ -68,12 +67,12 @@ public class PainelLogin extends JPanel {
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
         );
         // Adicionamos a tabela com scroll no centro
-        painelUsuarios.add(tabelaScroll, BorderLayout.CENTER);
-        /* Agora que construímos o painel de usuários, adicionamos todo o painel */
-        add(painelUsuarios);
+        painelTabela.add(tabelaScroll, BorderLayout.CENTER);
+        add(painelTabela, BorderLayout.NORTH);
 
         /* Depois haverá o painel dos botões que irão interagir com usuários para entrar */
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        painelBotoes.setEnabled(true);
         JButton entrar = new JButton("Entrar");
         // Para removermos o login da janela
         entrar.addActionListener(event -> {
@@ -96,15 +95,18 @@ public class PainelLogin extends JPanel {
                     return;
                 }
 
-                janela.remove(this);
-                janela.setVisible(false);
                 Main.getMain().efetuarLogin(usuario);
             }
         });
         painelBotoes.add(entrar);
 
         JButton criar = new JButton("Criar");
-        criar.addActionListener(new CriarUsuarioPapup(this));
+        criar.addActionListener(new CriarUsuarioPopup(this) {
+            @Override
+            public void redesenhar() {
+                Main.getMain().setJanelaPrincipal(new JanelaLogin());
+            }
+        });
         painelBotoes.add(criar);
 
         JButton sair = new JButton("Salvar e sair");
@@ -118,21 +120,13 @@ public class PainelLogin extends JPanel {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            janela.dispose();
+            dispose();
             System.exit(0);
         });
         painelBotoes.add(sair);
 
         /* Agora que construímos o painel de botões, adicionamos */
-        add(painelBotoes);
-        janela.pack();
-    }
-
-    @Override
-    public void updateUI() {
-        super.updateUI();
-        if (tabelaUsuarios != null) {
-            tabelaUsuarios.updateUI();
-        }
+        add(painelBotoes, BorderLayout.SOUTH);
+        pack();
     }
 }

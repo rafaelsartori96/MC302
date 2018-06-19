@@ -1,7 +1,8 @@
 package laboratorio.usuario;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.stream.*;
 
 import laboratorio.Main;
 import laboratorio.grupo.*;
@@ -97,6 +98,10 @@ public class Usuario implements Salvavel {
                 perfil.setUsuario(this);
             }
         }
+    }
+
+    public List<Grupo> getGrupos() {
+        return grupos.stream().map(GrupoUsuario::getGrupo).collect(Collectors.toUnmodifiableList());
     }
 
     public void adicionarGrupo(GrupoPublico grupo) {
