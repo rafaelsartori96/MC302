@@ -28,6 +28,9 @@ public abstract class Grupo implements Salvavel {
 
     Grupo(Tipo tipo, int id, Usuario dono, String nome, String descricao) {
         this.id = id;
+        if (id >= geradorId) {
+            geradorId = id + 1;
+        }
         this.tipo = tipo;
         this.dono = dono;
         this.nome = nome;
@@ -74,16 +77,16 @@ public abstract class Grupo implements Salvavel {
 
     /*
      * Considera que o dono ainda será membro, é necessário anterior e atual para verificar se não é um usuário comum
-     * que quer alterar o dono do laboratorio.grupo
+     * que quer alterar o dono do grupo
      */
     public boolean alterarDono(Usuario anterior, Usuario atual) {
         if (anterior.getId() != dono.getId()) {
             return false;
         }
 
-        // É possível possuir um laboratorio.grupo sem dono (público)
+        // É possível possuir um grupo sem dono (público)
         if (tipo == Tipo.PRIVADO) {
-            // Insere o laboratorio.usuario como membro, também (com o cuidado de verificar a unicidade - mais fácil remover antes)
+            // Insere o usuario como membro, também (com o cuidado de verificar a unicidade - mais fácil remover antes)
             this.removerMembro(atual);
             this.adicionarMembro(atual);
         }
@@ -161,7 +164,7 @@ public abstract class Grupo implements Salvavel {
             dono = gerenciadorUsuario.getUsuario(dataInputStream.readInt());
         }
 
-        /* Criamos o laboratorio.grupo */
+        /* Criamos o grupo */
         Grupo grupo;
         if (tipo == Tipo.PRIVADO) {
             grupo = new GrupoPrivado(id, dono, nome, descricao);
@@ -169,11 +172,16 @@ public abstract class Grupo implements Salvavel {
             grupo = new GrupoPublico(id, dono, nome, descricao);
         }
 
-        /* Colocamos os usuários no laboratorio.grupo */
+        /* Colocamos os usuários no grupo */
         int numMembros = dataInputStream.readInt();
         // Adicionamos todos os usuários
         for (int i = 0; i < numMembros; i++) {
-            grupo.adicionarMembro(gerenciadorUsuario.getUsuario(dataInputStream.readInt()));
+            int idUsuario = dataInputStream.readInt();
+            // O dono (se existiu) já foi adicionado
+            if (dono != null && idUsuario == dono.getId()) {
+                continue;
+            }
+            grupo.adicionarMembro(gerenciadorUsuario.getUsuario(idUsuario));
         }
 
         return grupo;
@@ -181,8 +189,19 @@ public abstract class Grupo implements Salvavel {
 
     public enum Tipo {
 
-        PUBLICO,
-        PRIVADO;
+        PUBLICO("Público"),
+        PRIVADO("Privado");
+
+        private final String nomeDisplay;
+
+        Tipo(String nomeDisplay) {
+            this.nomeDisplay = nomeDisplay;
+        }
+
+        @Override
+        public String toString() {
+            return nomeDisplay;
+        }
 
         public static Tipo fromOrdinal(int ordinal) {
             for (Tipo tipo : values()) {

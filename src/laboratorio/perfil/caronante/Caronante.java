@@ -184,7 +184,7 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
         return toString(0);
     }
 
-    // Será incluido pelo laboratorio.perfil
+    // Será incluido pelo perfil
 
     @Override
     public void salvarParaArquivo(DataOutputStream dataOutputStream) throws IOException {

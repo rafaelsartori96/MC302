@@ -31,7 +31,7 @@ public class CaronaPublica extends Carona {
             return super.adicionarCaroneiro(caroneiro);
         }
 
-        // Se há, limitamos aos que estão no laboratorio.grupo
+        // Se há, limitamos aos que estão no grupo
         Usuario usuario = caroneiro.getCaroneiro().getPerfil().getUsuario();
         for (GrupoPublico grupo : grupos) {
             if (grupo.checarPresenca(usuario)) {

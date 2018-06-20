@@ -19,6 +19,12 @@ public class JanelaUsuario extends JFrame {
     private final Usuario usuario;
     private final JTabbedPane painel;
 
+    private ModeloTabela<Carona> modeloCaronas;
+    private JTable tabelaCaronas;
+
+    private ModeloTabela<Grupo> modeloGrupos;
+    private JTable tabelaGrupos;
+
     public JanelaUsuario(final Usuario usuario) {
         super();
 
@@ -55,10 +61,10 @@ public class JanelaUsuario extends JFrame {
         JPanel painelGrupos = new JPanel(new BorderLayout());
 
         /* Criamos a tabela */
-        ModeloTabela<Grupo> modeloTabela = new ModeloTabela<>() {
+        modeloGrupos = new ModeloTabela<>() {
             @Override
             public int getColumnCount() {
-                return 4;
+                return 5;
             }
 
             @Override
@@ -71,6 +77,8 @@ public class JanelaUsuario extends JFrame {
                     case 2:
                         return "Número de membros";
                     case 3:
+                        return "Tipo";
+                    case 4:
                         return "Dono";
                     default:
                         return null;
@@ -87,6 +95,8 @@ public class JanelaUsuario extends JFrame {
                     case 2:
                         return object.getMembros().size();
                     case 3:
+                        return object.getTipo().toString();
+                    case 4:
                         return object.getDono() != null ? object.getDono().getNome() : "-";
                     default:
                         return null;
@@ -98,7 +108,7 @@ public class JanelaUsuario extends JFrame {
                 return usuario.getGrupos();
             }
         };
-        JTable tabelaGrupos = new JTable(modeloTabela);
+        tabelaGrupos = new JTable(modeloGrupos);
         tabelaGrupos.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
         /* Adicionamos o header da tabela */
         painelGrupos.add(tabelaGrupos.getTableHeader(), BorderLayout.NORTH);
@@ -111,29 +121,34 @@ public class JanelaUsuario extends JFrame {
         );
         painelGrupos.add(scrollTabela, BorderLayout.CENTER);
 
+        /* Adicionamos o painel de grupos na interface do usuário */
+        painelUsuario.add(painelGrupos);
+
         /* Criamos o painel para os botões dos grupos */
         JPanel opcoesGrupos = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         JButton criarGrupo = new JButton("Criar grupo");
-        criarGrupo.addActionListener(event -> {
-        });
+        criarGrupo.addActionListener(new CriarGrupoPopup(false));
         opcoesGrupos.add(criarGrupo);
 
+        JButton entrarGrupo = new JButton("Entrar em grupo");
+        entrarGrupo.addActionListener(new EntrarGrupoPopup());
+        opcoesGrupos.add(entrarGrupo);
+
         JButton modificarGrupo = new JButton("Modificar grupo");
-        modificarGrupo.addActionListener(event -> {
-        });
+        modificarGrupo.addActionListener(new CriarGrupoPopup(true));
         opcoesGrupos.add(modificarGrupo);
 
-//        JButton criarGrupo = new JButton("Criar grupo");
-//        criarGrupo.addActionListener(event ->{
-//        });
-//        opcoesGrupos.add(criarGrupo);
+        JButton adicionarAGrupo = new JButton("Adicionar a grupo");
+        adicionarAGrupo.addActionListener(new AdicionarAGrupoPopup());
+        opcoesGrupos.add(adicionarAGrupo);
+
+        JButton sairDeGrupo = new JButton("Sair de grupo");
+        sairDeGrupo.addActionListener(new SairGrupoPopup());
+        opcoesGrupos.add(sairDeGrupo);
 
         /* Adicionamos as opções de grupo ao painel de grupos */
-        painelGrupos.add(opcoesGrupos, BorderLayout.SOUTH);
-
-        /* Adicionamos o painel de grupos na interface do usuário */
-        painelUsuario.add(painelGrupos);
+        painelUsuario.add(opcoesGrupos);
 
         /* Criamos um painel com botões de controle de usuário */
         JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -178,7 +193,7 @@ public class JanelaUsuario extends JFrame {
 
             /* Caso não exista perfil, criamos um botão único no centro do painel do perfil */
             JButton criarPerfil = new JButton("Criar perfil");
-            criarPerfil.addActionListener(new CriarPerfilPopup(this));
+            criarPerfil.addActionListener(new CriarPerfilPopup());
 
             /* Adicionamos o botão ao centro do painel de perfil */
             painelPerfil.add(criarPerfil, BorderLayout.CENTER);
@@ -191,7 +206,7 @@ public class JanelaUsuario extends JFrame {
             /* Adicionamos o painel que contém as informações do perfil */
             painelPerfil.add(criarPaineisTexto(
                     "Sexo: " + (Character.toLowerCase(perfil.getSexo()) == 'f' ? "feminino" : "masculino"),
-                    "Fumante? " + (perfil.isFumante() ? "sim" : "não"),
+                    "Fumante: " + (perfil.isFumante() ? "sim" : "não"),
                     "Data de nascimento: " + perfil.getDataNascimento(),
                     "Telefone: " + perfil.getTelefone(),
                     "Localização: " + perfil.getCidade() + "/" + perfil.getEstado()
@@ -201,7 +216,7 @@ public class JanelaUsuario extends JFrame {
             JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
             JButton modificarPerfil = new JButton("Modificar perfil");
-            modificarPerfil.addActionListener(new CriarPerfilPopup(this));
+            modificarPerfil.addActionListener(new CriarPerfilPopup());
             painelBotoes.add(modificarPerfil);
 
             /* Adicionamos o painel de botões ao painel do perfil */
@@ -226,7 +241,7 @@ public class JanelaUsuario extends JFrame {
 
             /* Adicionamos um painel que contém apenas o botão no centro */
             JButton criarCaronante = new JButton("Criar caronante");
-            criarCaronante.addActionListener(new CriarCaronantePopup(this, perfil));
+            criarCaronante.addActionListener(new CriarCaronantePopup());
             painelCaronante.add(criarCaronante, BorderLayout.CENTER);
 
             /* Deixamos para o fim do método para criar a aba */
@@ -250,7 +265,7 @@ public class JanelaUsuario extends JFrame {
             painelTabela.setLayout(new BorderLayout());
 
             /* Criamos a tabela de carona */
-            ModeloTabela<Carona> modeloTabela = new ModeloTabela<>() {
+            modeloCaronas = new ModeloTabela<>() {
                 @Override
                 public int getColumnCount() {
                     return 6;
@@ -301,7 +316,7 @@ public class JanelaUsuario extends JFrame {
                     return caronante.getCaronas();
                 }
             };
-            JTable tabelaCaronas = new JTable(modeloTabela);
+            tabelaCaronas = new JTable(modeloCaronas);
             tabelaCaronas.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
             /* Adicionamos o header da tabela */
             painelTabela.add(tabelaCaronas.getTableHeader(), BorderLayout.NORTH);
@@ -313,6 +328,8 @@ public class JanelaUsuario extends JFrame {
             /* Adicionamos a tabela com um scroll massa */
             painelTabela.add(scrollTabelaCarona, BorderLayout.CENTER);
 
+            /* Adicionamos a tabela ao painel principal */
+            painelCaronante.add(painelTabela);
             /* Criamos um painel para botões */
             JPanel opcoesCaronas = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
@@ -324,7 +341,7 @@ public class JanelaUsuario extends JFrame {
 
             /* Adicionamos um botão para modificar a carona selecionada */
             JButton modificarCarona = new JButton("Modificar carona");
-            modificarCarona.addActionListener(new CriarCaronaPopup(this, perfil, modeloTabela, tabelaCaronas));
+            modificarCarona.addActionListener(new CriarCaronaPopup(true));
             opcoesCaronas.add(modificarCarona);
 
             /* Adicionamos um botão para avaliar caronantes da carona selecionada */
@@ -334,19 +351,16 @@ public class JanelaUsuario extends JFrame {
             opcoesCaronas.add(avaliarCaronantes);
 
             /* Adicionamos os botões das caronas */
-            painelTabela.add(opcoesCaronas, BorderLayout.SOUTH);
-
-            /* Finalmente, adicionamos a tabela ao painel principal */
-            painelCaronante.add(painelTabela);
+            painelCaronante.add(opcoesCaronas);
 
             JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
             JButton alterarPerfil = new JButton("Alterar caronante");
-            alterarPerfil.addActionListener(new CriarCaronantePopup(this, perfil));
+            alterarPerfil.addActionListener(new CriarCaronantePopup());
             painelBotoes.add(alterarPerfil);
 
             JButton oferecerCarona = new JButton("Oferecer carona");
-            oferecerCarona.addActionListener(new CriarCaronaPopup(this, perfil));
+            oferecerCarona.addActionListener(new CriarCaronaPopup(false));
             painelBotoes.add(oferecerCarona);
 
             /* Adicionamos o painel de botões ao painel do perfil */
@@ -368,7 +382,7 @@ public class JanelaUsuario extends JFrame {
 
             /* Criamos apenas um botão para criar o perfil */
             JButton criarCaroneiro = new JButton("Criar caroneiro");
-            criarCaroneiro.addActionListener(new CriarCaroneiroPopup(this, perfil));
+            criarCaroneiro.addActionListener(new CriarCaroneiroPopup());
 
             /* Adicionamos o painel para o painel do perfil */
             painelCaroneiro.add(criarCaroneiro, BorderLayout.CENTER);
@@ -389,7 +403,7 @@ public class JanelaUsuario extends JFrame {
             JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
             JButton alterarPerfil = new JButton("Alterar caroneiro");
-            alterarPerfil.addActionListener(new CriarCaroneiroPopup(this, perfil));
+            alterarPerfil.addActionListener(new CriarCaroneiroPopup());
             painelBotoes.add(alterarPerfil);
 
             /* Adicionamos o painel de botões */
@@ -401,13 +415,300 @@ public class JanelaUsuario extends JFrame {
         painel.addTab("Caroneiro", painelCaroneiro);
     }
 
-    private class CriarPerfilPopup implements ActionListener {
+    private class CriarGrupoPopup implements ActionListener {
 
-        private final JFrame janela;
+        private final boolean modificar;
 
-        CriarPerfilPopup(JFrame janela) {
-            this.janela = janela;
+        private CriarGrupoPopup(boolean modificar) {
+            this.modificar = modificar;
         }
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            JPanel formulario = new JPanel();
+            formulario.setLayout(new BoxLayout(formulario, BoxLayout.Y_AXIS));
+
+            /* Criamos um painel horizontal para cada pergunta */
+            Grupo grupo = null;
+            if (modificar) {
+                if (tabelaGrupos.getSelectedRow() < 0) {
+                    HelperDialog.popupErro("Selecione um grupo!", "É necessário selecionar um grupo!");
+                    return;
+                }
+                grupo = modeloGrupos.getObject(tabelaGrupos.getSelectedRow());
+
+                if (usuario != grupo.getDono()) {
+                    HelperDialog.popupErro("Erro!", "Você não é dono do grupo!");
+                    return;
+                }
+            }
+
+            /* Não é possível modificar o estado de um grupo após criação */
+            JCheckBox publico = null;
+            if (grupo == null) {
+                publico = new JCheckBox("Público");
+                formulario.add(publico);
+            }
+
+            JPanel painelNome = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelNome.add(new JLabel("Nome:"));
+            JTextField nome = new JTextField(16);
+            nome.setToolTipText("Entre com o nome do grupo.");
+            painelNome.add(nome);
+            formulario.add(painelNome);
+
+            JPanel painelDescricao = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelDescricao.add(new JLabel("Descrição do grupo:"));
+            JTextArea descricao = new JTextArea(4, 30);
+            descricao.setToolTipText("Descreva brevemente o grupo.");
+            descricao.setLineWrap(true);
+            descricao.setWrapStyleWord(true);
+            JScrollPane scrollDescricao = new JScrollPane(descricao);
+            scrollDescricao.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            painelDescricao.add(scrollDescricao);
+            formulario.add(painelDescricao);
+
+            /* Adicionamos informações do caroneiro caso exista perfil */
+            if (grupo != null) {
+                nome.setText(grupo.getNome());
+                descricao.setText(grupo.getDescricao());
+            }
+
+            int opcao = JOptionPane.showConfirmDialog(
+                    JanelaUsuario.this, formulario, "Dados do grupo", JOptionPane.OK_CANCEL_OPTION);
+
+            if (opcao == 0) {
+                /* Criamos o perfil ou atualizamos seus atributos */
+                if (grupo == null) {
+                    if (publico.isSelected()) {
+                        usuario.criarGrupoPublico(nome.getText(), descricao.getText());
+                    } else {
+                        usuario.criarGrupoPrivado(nome.getText(), descricao.getText());
+                    }
+                } else {
+                    grupo.setNome(nome.getText());
+                    grupo.setDescricao(descricao.getText());
+                }
+
+                /* Reconstruímos a UI */
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+            }
+        }
+    }
+
+    private class AdicionarAGrupoPopup implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            /* Conferimos se há grupo selecionado */
+            if (tabelaGrupos.getSelectedRow() < 0) {
+                HelperDialog.popupErro("Selecione um grupo!", "É necessário selecionar um grupo!");
+                return;
+            }
+
+            Grupo grupo = modeloGrupos.getObject(tabelaGrupos.getSelectedRow());
+            if (grupo.getTipo() == Grupo.Tipo.PUBLICO || !(grupo instanceof GrupoPrivado)) {
+                HelperDialog.popupErro("Erro!", "O grupo é público e todos podem entrar!");
+                return;
+            }
+
+            /* Criamos o painel principal */
+            JPanel painelTabela = new JPanel(new BorderLayout());
+
+            ModeloTabela<Usuario> modeloUsuarios = new ModeloTabela<>() {
+                @Override
+                public int getColumnCount() {
+                    return 3;
+                }
+
+                @Override
+                public String getColumnName(int column) {
+                    switch (column) {
+                        case 0:
+                            return "Nome";
+                        case 1:
+                            return "E-mail";
+                        case 2:
+                            return "Número de grupos";
+                        default:
+                            return null;
+                    }
+                }
+
+                @Override
+                public Object getColumn(Usuario object, int column) {
+                    switch (column) {
+                        case 0:
+                            return object.getNome();
+                        case 1:
+                            return object.getEmail();
+                        case 2:
+                            return object.getGrupos().size();
+                        default:
+                            return null;
+                    }
+                }
+
+                @Override
+                public List<Usuario> getList() {
+                    return Main.getMain().getGerenciadorUsuario().getUsuarios();
+                }
+            };
+            JTable tabelaUsuarios = new JTable(modeloUsuarios);
+            tabelaUsuarios.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+            painelTabela.add(tabelaUsuarios.getTableHeader(), BorderLayout.NORTH);
+
+            JScrollPane scrollUsuarios = new JScrollPane(tabelaUsuarios);
+            scrollUsuarios.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            painelTabela.add(scrollUsuarios, BorderLayout.CENTER);
+
+            int opcao = JOptionPane.showConfirmDialog(
+                    JanelaUsuario.this, painelTabela, "Lista de usuários", JOptionPane.OK_CANCEL_OPTION);
+
+            if (opcao == 0) {
+                /* Avisamos caso não tenha sido selecionado */
+                if (tabelaUsuarios.getSelectedRow() < 0) {
+                    HelperDialog.popupErro("Erro!", "É necessário escolher ao menos um usuário!");
+                    return;
+                }
+
+                Usuario usuarioSelecionado = modeloUsuarios.getObject(tabelaUsuarios.getSelectedRow());
+
+                /* Tentamos adicionar o usuário ao grupo */
+                try {
+                    usuario.adicionarAGrupo((GrupoPrivado) grupo, usuarioSelecionado);
+                } catch (SistemaCaronaException e) {
+                    HelperDialog.popupErro("Erro!", e.getMessage());
+                }
+
+                /* Reconstruímos a UI */
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+            }
+        }
+    }
+
+    private class EntrarGrupoPopup implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            /* Criamos o painel principal */
+            JPanel painelTabela = new JPanel(new BorderLayout());
+
+            ModeloTabela<Grupo> modeloGrupos = new ModeloTabela<>() {
+                @Override
+                public int getColumnCount() {
+                    return 5;
+                }
+
+                @Override
+                public String getColumnName(int column) {
+                    switch (column) {
+                        case 0:
+                            return "ID";
+                        case 1:
+                            return "Nome";
+                        case 2:
+                            return "Tipo";
+                        case 3:
+                            return "Descrição";
+                        case 4:
+                            return "Dono";
+                        default:
+                            return null;
+                    }
+                }
+
+                @Override
+                public Object getColumn(Grupo object, int column) {
+                    switch (column) {
+                        case 0:
+                            return object.getId();
+                        case 1:
+                            return object.getNome();
+                        case 2:
+                            return object.getTipo().toString();
+                        case 3:
+                            return object.getDescricao();
+                        case 4:
+                            return object.getDono() != null ? object.getDono().getNome() : "-";
+                        default:
+                            return null;
+                    }
+                }
+
+                @Override
+                public List<Grupo> getList() {
+                    return Main.getMain().getGerenciadorGrupo().getGrupos();
+                }
+            };
+            JTable tabelaGrupos = new JTable(modeloGrupos);
+            tabelaGrupos.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+            painelTabela.add(tabelaGrupos.getTableHeader(), BorderLayout.NORTH);
+
+            JScrollPane scrollGrupos = new JScrollPane(tabelaGrupos);
+            scrollGrupos.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            painelTabela.add(scrollGrupos, BorderLayout.CENTER);
+
+            int opcao = JOptionPane.showConfirmDialog(
+                    JanelaUsuario.this, painelTabela, "Lista de grupos", JOptionPane.OK_CANCEL_OPTION);
+
+            if (opcao == 0) {
+                /* Avisamos caso não tenha sido selecionado */
+                if (tabelaGrupos.getSelectedRow() < 0) {
+                    HelperDialog.popupErro("Erro!", "É necessário escolher ao menos um grupo!");
+                    return;
+                }
+
+                Grupo grupo = modeloGrupos.getObject(tabelaGrupos.getSelectedRow());
+
+                /* Verificamos se o grupo é válido */
+                if (grupo.getTipo() == Grupo.Tipo.PRIVADO) {
+                    HelperDialog.popupErro("Erro!", "Não é possível entrar em grupos privados, apenas em públicos.");
+                    return;
+                }
+
+                /* Tentamos adicionar o usuário ao grupo */
+                usuario.adicionarGrupo((GrupoPublico) grupo);
+
+                /* Reconstruímos a UI */
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+            }
+        }
+    }
+
+    private class SairGrupoPopup implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent event) {
+            /* Criamos um painel horizontal para cada pergunta */
+            if (tabelaGrupos.getSelectedRow() < 0) {
+                HelperDialog.popupErro("Selecione um grupo!", "É necessário selecionar um grupo!");
+                return;
+            }
+            Grupo grupo = modeloGrupos.getObject(tabelaGrupos.getSelectedRow());
+
+            int opcao = JOptionPane.showConfirmDialog(
+                    JanelaUsuario.this,
+                    "Você tem certeza que quer sair de " + grupo.getNome() + "?",
+                    "Sair de grupo",
+                    JOptionPane.OK_CANCEL_OPTION
+            );
+
+            if (opcao == 0) {
+                /* Saímos do grupo */
+                try {
+                    usuario.removerGrupo(grupo);
+                } catch (SistemaCaronaException e) {
+                    HelperDialog.popupErro("Erro!", e.getMessage());
+                }
+
+                /* Reconstruímos a UI */
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+            }
+        }
+    }
+
+    private class CriarPerfilPopup implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -461,7 +762,7 @@ public class JanelaUsuario extends JFrame {
             }
 
             int opcao = JOptionPane.showConfirmDialog(
-                    janela, formulario, "Dados do perfil", JOptionPane.OK_CANCEL_OPTION);
+                    JanelaUsuario.this, formulario, "Dados do perfil", JOptionPane.OK_CANCEL_OPTION);
 
             if (opcao == 0) {
                 /* Criamos o perfil ou atualizamos seus atributos */
@@ -494,24 +795,10 @@ public class JanelaUsuario extends JFrame {
 
     private class CriarCaronaPopup implements ActionListener {
 
-        private final JFrame janela;
-        private final Perfil perfil;
+        private final boolean modificar;
 
-        private final ModeloTabela<Carona> modelo;
-        private final JTable tabela;
-
-        private CriarCaronaPopup(JFrame janela, Perfil perfil) {
-            this.janela = janela;
-            this.perfil = perfil;
-            this.modelo = null;
-            this.tabela = null;
-        }
-
-        private CriarCaronaPopup(JFrame janela, Perfil perfil, ModeloTabela<Carona> modelo, JTable tabela) {
-            this.janela = janela;
-            this.perfil = perfil;
-            this.modelo = modelo;
-            this.tabela = tabela;
+        private CriarCaronaPopup(boolean modificar) {
+            this.modificar = modificar;
         }
 
         @Override
@@ -524,8 +811,12 @@ public class JanelaUsuario extends JFrame {
              */
 
             Carona carona = null;
-            if (modelo != null) {
-                carona = modelo.getObject(tabela.getSelectedRow());
+            if (modificar) {
+                if (tabelaCaronas.getSelectedRow() < 0) {
+                    HelperDialog.popupErro("Selecione uma carona!", "É necessário selecionar uma carona!");
+                    return;
+                }
+                carona = modeloCaronas.getObject(tabelaCaronas.getSelectedRow());
             }
 
             JCheckBox caronaPublica = null;
@@ -602,7 +893,7 @@ public class JanelaUsuario extends JFrame {
 
             /* Mostramos ao usuário esse painel */
             int opcao = JOptionPane.showConfirmDialog(
-                    janela, formulario, "Dados da carona", JOptionPane.OK_CANCEL_OPTION
+                    JanelaUsuario.this, formulario, "Dados da carona", JOptionPane.OK_CANCEL_OPTION
             );
 
             /* Se o usuário apertou OK... */
@@ -613,7 +904,7 @@ public class JanelaUsuario extends JFrame {
                     /* Criamos uma carona pública ou privada dependendo da opção selecionada */
                     if (carona == null) {
                         if (caronaPublica.isSelected()) {
-                            carona = perfil.getCaronante().oferecerCaronaPublica(
+                            carona = usuario.getPerfil().getCaronante().oferecerCaronaPublica(
                                     Double.valueOf(latitudeDestino.getText().replace(",", ".")),
                                     Double.valueOf(longitudeEncontro.getText().replace(",", ".")),
                                     Double.valueOf(latitudeDestino.getText().replace(",", ".")),
@@ -622,7 +913,7 @@ public class JanelaUsuario extends JFrame {
                                     valor
                             );
                         } else {
-                            carona = perfil.getCaronante().oferecerCaronaPrivada(
+                            carona = usuario.getPerfil().getCaronante().oferecerCaronaPrivada(
                                     Double.valueOf(latitudeDestino.getText().replace(",", ".")),
                                     Double.valueOf(longitudeEncontro.getText().replace(",", ".")),
                                     Double.valueOf(latitudeDestino.getText().replace(",", ".")),
@@ -668,14 +959,6 @@ public class JanelaUsuario extends JFrame {
 
     private class CriarCaronantePopup implements ActionListener {
 
-        private final JFrame janela;
-        private final Perfil perfil;
-
-        CriarCaronantePopup(JFrame janela, Perfil perfil) {
-            this.janela = janela;
-            this.perfil = perfil;
-        }
-
         @Override
         public void actionPerformed(ActionEvent event) {
             JPanel formulario = new JPanel();
@@ -718,7 +1001,7 @@ public class JanelaUsuario extends JFrame {
             placaVeiculo.setToolTipText("ABC-1234");
             painelJuridico.add(placaVeiculo);
 
-            Caronante caronante = perfil.getCaronante();
+            Caronante caronante = usuario.getPerfil().getCaronante();
             /* Permitimos a escrita de carteira de motorista apenas para o usuário que está se registrando */
             JTextField carteiraMotorista = null;
 
@@ -740,13 +1023,13 @@ public class JanelaUsuario extends JFrame {
             formulario.add(painelJuridico);
 
             int opcao = JOptionPane.showConfirmDialog(
-                    janela, formulario, "Dados do caronante", JOptionPane.OK_CANCEL_OPTION);
+                    JanelaUsuario.this, formulario, "Dados do caronante", JOptionPane.OK_CANCEL_OPTION);
 
             if (opcao == 0) {
                 try {
                     /* Criamos o perfil ou atualizamos seus atributos */
                     if (caronante == null) {
-                        perfil.setCaronante(new Caronante(
+                        usuario.getPerfil().setCaronante(new Caronante(
                                 Integer.valueOf(tempoHabilitacao.getText()),
                                 generoMusicalFavorito.getText(),
                                 placaVeiculo.getText(),
@@ -775,15 +1058,6 @@ public class JanelaUsuario extends JFrame {
 
     private class CriarCaroneiroPopup implements ActionListener {
 
-        private final JFrame janela;
-
-        private final Perfil perfil;
-
-        CriarCaroneiroPopup(JFrame janela, Perfil perfil) {
-            this.janela = janela;
-            this.perfil = perfil;
-        }
-
         @Override
         public void actionPerformed(ActionEvent event) {
             JPanel formulario = new JPanel();
@@ -801,7 +1075,7 @@ public class JanelaUsuario extends JFrame {
             JCheckBox pagamentoEmDinheiro = new JCheckBox("Pagamento em dinheiro");
             formulario.add(pagamentoEmDinheiro);
 
-            Caroneiro caroneiro = perfil.getCaroneiro();
+            Caroneiro caroneiro = usuario.getPerfil().getCaroneiro();
 
             /* Adicionamos informações do caroneiro caso exista perfil */
             if (caroneiro != null) {
@@ -812,7 +1086,7 @@ public class JanelaUsuario extends JFrame {
             }
 
             int opcao = JOptionPane.showConfirmDialog(
-                    janela, formulario, "Dados do caroneiro", JOptionPane.OK_CANCEL_OPTION);
+                    JanelaUsuario.this, formulario, "Dados do caroneiro", JOptionPane.OK_CANCEL_OPTION);
 
             if (opcao == 0) {
                 try {
@@ -822,7 +1096,7 @@ public class JanelaUsuario extends JFrame {
                         if (cartaoDeCredito.getText().length() > 0) {
                             caroneiro.setCartaoDeCredito(cartaoDeCredito.getText());
                         }
-                        perfil.setCaroneiro(caroneiro);
+                        usuario.getPerfil().setCaroneiro(caroneiro);
                     } else {
                         caroneiro.setCartaoDeCredito(cartaoDeCredito.getText());
                         caroneiro.setPagamentoEmDinheiro(pagamentoEmDinheiro.isSelected());

@@ -105,25 +105,39 @@ public class Usuario implements Salvavel {
     }
 
     public void adicionarGrupo(GrupoPublico grupo) {
+        for (Grupo grupoUsuario : getGrupos()) {
+            /* Conferimos se o usuário já está */
+            if (grupoUsuario == grupo) {
+                return;
+            }
+        }
         grupo.adicionarMembro(this);
     }
 
-    // Já é garantido que o dono do laboratorio.grupo não possa sair sem alterar o dono
-
     public void removerGrupo(int id) throws SistemaCaronaException {
-        for (GrupoUsuario grupoUsuario : grupos) {
+        if (grupos.isEmpty()) {
+            return;
+        }
+
+        for (Iterator<GrupoUsuario> iterator = grupos.iterator(); iterator.hasNext();) {
+            GrupoUsuario grupoUsuario = iterator.next();
+
             if (grupoUsuario.getGrupo().getId() == id) {
-                // Conferimos o laboratorio.grupo apenas para privado (aparentemente, grupos públicos podem ficar sem dono)
+                // Conferimos o grupo apenas para privado (aparentemente, grupos públicos podem ficar sem
+                // dono)
                 if (grupoUsuario.getGrupo().getTipo() == Grupo.Tipo.PRIVADO &&
                         grupoUsuario.getGrupo().getDono().getId() == getId()) {
                     throw new SistemaCaronaException("Grupo privado não pode ficar sem dono!");
                 }
 
-                grupos.remove(grupoUsuario);
-                grupoUsuario.getGrupo().removerMembro(this);
+                iterator.remove();
+                if(!grupoUsuario.getGrupo().removerMembro(this)) {
+                    throw new SistemaCaronaException("O usuário não foi removido corretamente do grupo!");
+                }
+                return;
             }
         }
-        throw new SistemaCaronaException("O usuário não pertence a este laboratorio.grupo!");
+        throw new SistemaCaronaException("O usuário não pertence a este grupo!");
     }
 
     public void removerGrupo(Grupo grupo) throws SistemaCaronaException {
@@ -150,7 +164,13 @@ public class Usuario implements Salvavel {
 
     public void adicionarAGrupo(GrupoPrivado grupo, Usuario usuario) throws SistemaCaronaException {
         if (grupo.getDono().getId() != getId()) {
-            throw new SistemaCaronaException("Não é possível adicionar alguém ao laboratorio.grupo privado não sendo o dono.");
+            throw new SistemaCaronaException("Não é possível adicionar alguém ao grupo privado não sendo o dono.");
+        }
+
+        for (Grupo grupoUsuario : usuario.getGrupos()) {
+            if (grupo == grupoUsuario) {
+                throw new SistemaCaronaException("O usuário já está nesse grupo!");
+            }
         }
 
         grupo.adicionarMembro(usuario);
@@ -164,10 +184,14 @@ public class Usuario implements Salvavel {
         return Main.getMain().getGerenciadorGrupo().criarGrupoPrivado(this, nome, descricao);
     }
 
+    public void removerGrupoUsuario(GrupoUsuario grupoUsuario) {
+        grupos.remove(grupoUsuario);
+    }
+
     public String toString(int numeroEspacos) {
         String espacos = HelperFormatacao.criaEspacos(numeroEspacos);
 
-        String stringGrupos = espacos + "* Sem laboratorio.grupo associado *\n";
+        String stringGrupos = espacos + "* Sem grupo associado *\n";
 
         if (!grupos.isEmpty()) {
             StringBuilder stringBuilder = new StringBuilder();

@@ -141,7 +141,7 @@ public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
             cartaoDeCredito = inputStream.readUTF();
         }
 
-        /* Verificamos o laboratorio.pagamento em dinheiro */
+        /* Verificamos o pagamento em dinheiro */
         boolean pagamentoEmDinheiro = inputStream.readBoolean();
         int avaliacoes = inputStream.readInt();
         float somaAvaliacoes = inputStream.readFloat();

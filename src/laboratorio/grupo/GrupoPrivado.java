@@ -30,14 +30,16 @@ public class GrupoPrivado extends Grupo {
 
     @Override
     public boolean removerMembro(Usuario usuario) {
-        Iterator<GrupoUsuario> iterator = membros.iterator();
-        if (!iterator.hasNext()) {
+        if (membros.isEmpty()) {
             return false;
         }
 
-        for (GrupoUsuario membro = iterator.next(); iterator.hasNext(); membro = iterator.next()) {
+        for (Iterator<GrupoUsuario> iterator = membros.iterator(); iterator.hasNext(); ) {
+            GrupoUsuario membro = iterator.next();
             if (membro.getUsuario().getId() == usuario.getId()) {
-                // Removemos utilizando o iterator (for-loop com remoção dá erros)
+                // Para ficar consistente
+                usuario.removerGrupoUsuario(membro);
+                // Removemos utilizando o iterator
                 iterator.remove();
                 return true;
             }
