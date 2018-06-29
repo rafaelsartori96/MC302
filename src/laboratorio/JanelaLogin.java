@@ -16,7 +16,6 @@ public class JanelaLogin extends JFrame {
 //        janela.setMinimumSize(new Dimension(600, 500));
         setTitle("Sistema de caronas");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         JPanel painelTabela = new JPanel(new BorderLayout());
@@ -128,5 +127,6 @@ public class JanelaLogin extends JFrame {
         /* Agora que construímos o painel de botões, adicionamos */
         add(painelBotoes, BorderLayout.SOUTH);
         pack();
+        setLocationRelativeTo(null);
     }
 }

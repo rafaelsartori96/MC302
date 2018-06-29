@@ -12,11 +12,10 @@ import java.io.*;
  * Rafael Santos (186154)
  *
  * As funcionalidades "básicas" desse programa exigem uma construção muito trabalhosa. Tive dificuldade durante as
- * primeiras horas, porém agora só está um *ENORME* trabalho maçante. Apenas essa parte ficou mais de 600 linhas de
- * código.
+ * primeiras horas, porém agora só está um *ENORME* trabalho maçante.
  *
  * A JanelaUsuario é a interface que atende todas as necessidades básicas exigidas no laboratório. Eu fiz a JanelaLogin
- * (que não era necessário no laboratório) antes dela, ficou razoavelmente curta.
+ * (que não era necessário no laboratório) antes dela, mas ficou razoavelmente curta.
  */
 public class Main {
 
@@ -34,7 +33,8 @@ public class Main {
         GerenciadorGrupo gerenciadorGrupo_ = new GerenciadorGrupo();
 
         /* Iniciamos o sistema, carregamos de arquivo se houver */
-        try (DataInputStream dataInputStream = new DataInputStream(new BufferedInputStream(new FileInputStream("database.db")))) {
+        try (DataInputStream dataInputStream =
+                     new DataInputStream(new BufferedInputStream(new FileInputStream("database.db")))) {
             gerenciadorUsuario_ = GerenciadorUsuario.carregar(dataInputStream);
             gerenciadorGrupo_ = GerenciadorGrupo.carregar(dataInputStream, gerenciadorUsuario_);
         } catch (IOException e) {
@@ -92,7 +92,7 @@ public class Main {
         } else {
             this.usuario = usuario;
             // Criamos a interface de um usuário logado
-            setJanelaPrincipal(new JanelaUsuario(usuario));
+            setJanelaPrincipal(new JanelaUsuario(usuario, JanelaUsuario.Pagina.USUARIO));
         }
     }
 }

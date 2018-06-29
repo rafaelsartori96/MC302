@@ -25,12 +25,11 @@ public class JanelaUsuario extends JFrame {
     private ModeloTabela<Grupo> modeloGrupos;
     private JTable tabelaGrupos;
 
-    public JanelaUsuario(final Usuario usuario) {
+    public JanelaUsuario(final Usuario usuario, Pagina pagina) {
         super();
 
         setTitle("Sistema de caronas");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         this.usuario = usuario;
@@ -42,8 +41,11 @@ public class JanelaUsuario extends JFrame {
         /* Adicionamos as informações de perfil */
         criarPainelPerfil();
 
+        painel.setSelectedIndex(pagina.getIndex());
+
         add(painel, BorderLayout.CENTER);
         pack();
+        setLocationRelativeTo(null);
     }
 
     private void criarPainelUsuario() {
@@ -167,7 +169,7 @@ public class JanelaUsuario extends JFrame {
         alterarUsuario.addActionListener(new CriarUsuarioPopup(this, usuario) {
             @Override
             public void redesenhar() {
-                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.USUARIO));
             }
         });
         painelBotoes.add(alterarUsuario);
@@ -180,7 +182,7 @@ public class JanelaUsuario extends JFrame {
         painelUsuario.add(painelBotoes);
 
         /* Criamos a aba usuário com este painel */
-        painel.addTab("Usuário", painelUsuario);
+        painel.insertTab("Usuário", null, painelUsuario, "Controle do usuário", Pagina.USUARIO.getIndex());
     }
 
     private void criarPainelPerfil() {
@@ -199,7 +201,7 @@ public class JanelaUsuario extends JFrame {
             painelPerfil.add(criarPerfil, BorderLayout.CENTER);
 
             /* Adicionamos a aba de perfil */
-            painel.addTab("Perfil", painelPerfil);
+            painel.insertTab("Perfil", null, painelPerfil, "Controle do perfil", Pagina.PERFIL.getIndex());
         } else {
             painelPerfil.setLayout(new BoxLayout(painelPerfil, BoxLayout.Y_AXIS));
 
@@ -223,7 +225,7 @@ public class JanelaUsuario extends JFrame {
             painelPerfil.add(painelBotoes);
 
             /* Criamos a aba de perfil */
-            painel.addTab("Perfil", painelPerfil);
+            painel.insertTab("Perfil", null, painelPerfil, "Controle do perfil", Pagina.PERFIL.getIndex());
 
             /* Criamos as abas de Caronante e Caroneiro, já que o perfil existe */
             criarPainelCaronante(perfil);
@@ -370,7 +372,8 @@ public class JanelaUsuario extends JFrame {
         }
 
         /* Adicionamos a aba */
-        painel.addTab("Caronante", painelCaronante);
+        painel.insertTab(
+                "Caronante", null, painelCaronante, "Perfil para oferecer caronas", Pagina.CARONANTE.getIndex());
     }
 
     private void criarPainelCaroneiro(Perfil perfil) {
@@ -412,7 +415,7 @@ public class JanelaUsuario extends JFrame {
             /* Deixamos para o fim do método para adicionar a aba */
         }
 
-        painel.addTab("Caroneiro", painelCaroneiro);
+        painel.insertTab("Caroneiro", null, painelCaroneiro, "Perfil para buscar caronas", Pagina.CARONEIRO.getIndex());
     }
 
     private class CriarGrupoPopup implements ActionListener {
@@ -491,7 +494,7 @@ public class JanelaUsuario extends JFrame {
                 }
 
                 /* Reconstruímos a UI */
-                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.USUARIO));
             }
         }
     }
@@ -582,7 +585,7 @@ public class JanelaUsuario extends JFrame {
                 }
 
                 /* Reconstruímos a UI */
-                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.USUARIO));
             }
         }
     }
@@ -671,7 +674,7 @@ public class JanelaUsuario extends JFrame {
                 usuario.adicionarGrupo((GrupoPublico) grupo);
 
                 /* Reconstruímos a UI */
-                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.USUARIO));
             }
         }
     }
@@ -703,7 +706,7 @@ public class JanelaUsuario extends JFrame {
                 }
 
                 /* Reconstruímos a UI */
-                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.USUARIO));
             }
         }
     }
@@ -788,7 +791,7 @@ public class JanelaUsuario extends JFrame {
                 }
 
                 /* Reconstruímos a UI */
-                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.PERFIL));
             }
         }
     }
@@ -948,7 +951,7 @@ public class JanelaUsuario extends JFrame {
                     }
 
                     /* Reconstruímos a UI */
-                    Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                    Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.CARONANTE));
                 } catch (NumberFormatException e) {
                     HelperDialog.popupErro(
                             "Formatação inválida!", "Os números não respeitam o formato 4,32 ou 4.32!");
@@ -1047,7 +1050,7 @@ public class JanelaUsuario extends JFrame {
                     }
 
                     /* Reconstruímos a UI */
-                    Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                    Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.CARONANTE));
                 } catch (NumberFormatException exception) {
                     HelperDialog.popupErro(
                             "Formatação inválida!", "O número deve ser inteiro!");
@@ -1103,7 +1106,7 @@ public class JanelaUsuario extends JFrame {
                     }
 
                     /* Reconstruímos a UI */
-                    Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario));
+                    Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.CARONEIRO));
                 } catch (NumberFormatException exception) {
                     HelperDialog.popupErro("Formatação inválida!", "O número de cartão deve ser inteiro!");
                 }
@@ -1129,4 +1132,20 @@ public class JanelaUsuario extends JFrame {
         return painelEsquerda;
     }
 
+    public enum Pagina {
+        USUARIO(0),
+        PERFIL(1),
+        CARONANTE(2),
+        CARONEIRO(3);
+
+        private final int index;
+
+        Pagina(int index) {
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+    }
 }
