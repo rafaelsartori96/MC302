@@ -167,6 +167,11 @@ public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
         // Removemos as caronas que estamos
         caronas.removeAll(getCaronas());
 
+        // Removemos as caronas que oferecemos
+        if (perfil.getCaronante() != null) {
+            caronas.removeAll(perfil.getCaronante().getCaronas());
+        }
+
         return caronas;
     }
 }

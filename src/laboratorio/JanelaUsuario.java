@@ -13,6 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JanelaUsuario extends JFrame {
 
@@ -293,8 +294,7 @@ public class JanelaUsuario extends JFrame {
 
             /* Adicionamos um botão para adicionar a carona a algum grupo */
             JButton adicionarGrupo = new JButton("Adicionar grupo");
-            adicionarGrupo.addActionListener(event -> {
-            });
+            adicionarGrupo.addActionListener(new AdicionarCaronaGrupoPopup());
             opcoesCaronas.add(adicionarGrupo);
 
             /* Adicionamos um botão para modificar a carona selecionada */
@@ -302,10 +302,9 @@ public class JanelaUsuario extends JFrame {
             modificarCarona.addActionListener(new CriarCaronaPopup(true));
             opcoesCaronas.add(modificarCarona);
 
-            /* Adicionamos um botão para avaliar caronantes da carona selecionada */
-            JButton avaliarCaronantes = new JButton("Avaliar caronantes");
-            avaliarCaronantes.addActionListener(event -> {
-            });
+            /* Adicionamos um botão para avaliar caroneiros da carona selecionada */
+            JButton avaliarCaronantes = new JButton("Avaliar caroneiros");
+            avaliarCaronantes.addActionListener(new AvaliarCaroneiroPopup());
             opcoesCaronas.add(avaliarCaronantes);
 
             /* Adicionamos os botões das caronas */
@@ -355,7 +354,8 @@ public class JanelaUsuario extends JFrame {
             painelCaroneiro.add(criarPaineisTexto(
                     "Cartão de crédito: " + (caroneiro.getCartaoDeCredito() == null ? "não registrado" :
                             caroneiro.getCartaoDeCredito()),
-                    "Paga em dinheiro: " + (caroneiro.isPagamentoEmDinheiro() ? "sim" : "não")
+                    "Paga em dinheiro: " + (caroneiro.isPagamentoEmDinheiro() ? "sim" : "não"),
+                    "Avaliação: " + caroneiro.getAvaliacao()
             ));
 
             /* Adicionamos a lista de caronas que o caronante está */
@@ -1170,6 +1170,215 @@ public class JanelaUsuario extends JFrame {
                 JOptionPane.showMessageDialog(
                         JanelaUsuario.this, "O número deve ser inteiro", "Erro!", JOptionPane.ERROR_MESSAGE);
             }
+
+            /* Reconstruímos a UI */
+            Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.CARONEIRO));
+        }
+    }
+
+    class EntrarCaronaPopup implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (tabelaCaronasDisponiveis.getSelectedRow() < 0) {
+                JOptionPane.showMessageDialog(
+                        JanelaUsuario.this,
+                        "É necessário selecionar uma carona para entrar!",
+                        "Erro!",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            JOptionPane.showMessageDialog(
+                    JanelaUsuario.this,
+                    usuario.getPerfil().getCaroneiro().pedirCarona(
+                            modeloCaronasDisponiveis.getObject(tabelaCaronasDisponiveis.getSelectedRow())) ?
+                            "Entrou na carona com sucesso!" :
+                            "Carona recusou sua entrada",
+                    "Situação de carona",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            /* Reconstruímos a UI */
+            Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.CARONEIRO));
+        }
+    }
+
+    class SairCaronaPopup implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (tabelaCaronasConcluidas.getSelectedRow() < 0) {
+                JOptionPane.showMessageDialog(
+                        JanelaUsuario.this,
+                        "É necessário selecionar uma carona para sair!",
+                        "Erro!",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            JOptionPane.showMessageDialog(
+                    JanelaUsuario.this,
+                    modeloCaronaConcluidas.getObject(tabelaCaronasConcluidas.getSelectedRow())
+                            .removerCaroneiro(usuario.getPerfil().getCaroneiro()) ?
+                            "Saiu da carona com sucesso!" :
+                            "Erro ao sair da carona",
+                    "Situação de carona",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            /* Reconstruímos a UI */
+            Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.CARONEIRO));
+        }
+    }
+
+    class AvaliarCaroneiroPopup implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int selectedRow = tabelaCaronasCaronante.getSelectedRow();
+            if (selectedRow < 0) {
+                JOptionPane.showMessageDialog(
+                        JanelaUsuario.this, "Selecione uma carona!", "Erro!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Carona carona = modeloCaronaCaronante.getObject(selectedRow);
+            if (carona.caronaVazia()) {
+                JOptionPane.showMessageDialog(
+                        JanelaUsuario.this, "Carona está vazia!", "Erro!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            JPanel avaliacao = new JPanel();
+            avaliacao.setLayout(new BoxLayout(avaliacao, BoxLayout.Y_AXIS));
+
+            JPanel selecaoCaroneiro = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            selecaoCaroneiro.add(new JLabel("Selecione o caroneiro:"));
+            ModeloComboBox<Caroneiro> modeloCaroneiro = new ModeloComboBox<>(carona.getCaroneiros()) {
+                @Override
+                public String getElementAt(int index) {
+                    return list.get(index).getPerfil().getUsuario().getNome();
+                }
+            };
+            JComboBox<String> caroneiros = new JComboBox<>(modeloCaroneiro);
+            selecaoCaroneiro.add(caroneiros);
+            avaliacao.add(selecaoCaroneiro);
+
+            JPanel painelNota = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            painelNota.add(new JLabel("Entre a nota:"));
+            JTextField nota = new JTextField(3);
+            painelNota.add(nota);
+            avaliacao.add(painelNota);
+
+            if (JOptionPane.showConfirmDialog(
+                    JanelaUsuario.this, avaliacao, "Avalie caroneiros", JOptionPane.OK_CANCEL_OPTION) == 0) {
+                try {
+                    Caroneiro caroneiro = modeloCaroneiro.getAt(caroneiros.getSelectedIndex());
+                    carona.atribuirNotaCaroneiro(
+                            caroneiro.getPerfil().getUsuario().getId(), Float.valueOf(nota.getText()));
+                } catch (NumberFormatException e1) {
+                    JOptionPane.showMessageDialog(
+                            JanelaUsuario.this,
+                            "Número deve ser real! Utilize ponto como divisor decimal.",
+                            "Erro!",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+
+                /* Reconstruímos a UI */
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.CARONANTE));
+            }
+        }
+    }
+
+    class AdicionarCaronaGrupoPopup implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int selectedRow = tabelaCaronasCaronante.getSelectedRow();
+            if (selectedRow < 0) {
+                JOptionPane.showMessageDialog(
+                        JanelaUsuario.this, "Selecione uma carona!", "Erro!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Carona carona = modeloCaronaCaronante.getObject(selectedRow);
+
+            JPanel selecaoGrupo = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            selecaoGrupo.add(new JLabel("Selecione o grupo:"));
+            ModeloComboBox<Grupo> modeloGrupos = new ModeloComboBox<>(
+                    carona.getTipo() == Carona.Tipo.PUBLICA ?
+                            usuario.getGrupos().stream()
+                                    .filter(grupo -> grupo.getTipo() == Grupo.Tipo.PUBLICO)
+                                    .collect(Collectors.toList()) :
+                            usuario.getGrupos().stream()
+                                    .filter(grupo -> grupo.getTipo() == Grupo.Tipo.PRIVADO)
+                                    .collect(Collectors.toList())
+            ) {
+                @Override
+                public String getElementAt(int index) {
+                    return list.get(index).getNome();
+                }
+            };
+            JComboBox<String> grupos = new JComboBox<>(modeloGrupos);
+            selecaoGrupo.add(grupos);
+
+            if (JOptionPane.showConfirmDialog(
+                    JanelaUsuario.this, selecaoGrupo, "Escolha o grupo", JOptionPane.OK_CANCEL_OPTION) == 0) {
+                if (carona.getTipo() == Carona.Tipo.PUBLICA) {
+                    ((CaronaPublica) carona).adicionarGrupo(
+                            (GrupoPublico) modeloGrupos.getAt(grupos.getSelectedIndex())
+                    );
+                } else {
+                    ((CaronaPrivada) carona).adicionarGrupo(
+                            (GrupoPrivado) modeloGrupos.getAt(grupos.getSelectedIndex())
+                    );
+                }
+
+                /* Reconstruímos a UI */
+                Main.getMain().setJanelaPrincipal(new JanelaUsuario(usuario, Pagina.CARONANTE));
+            }
+        }
+    }
+
+    abstract class ModeloComboBox<T> extends DefaultComboBoxModel<String> {
+
+        protected final List<T> list;
+
+        ModeloComboBox(List<T> caroneiros) {
+            this.list = caroneiros;
+        }
+
+        @Override
+        public abstract String getElementAt(int index);
+
+        @Override
+        public int getSize() {
+            return list.size();
+        }
+
+        public T getAt(int index) {
+            return list.get(index);
+        }
+    }
+
+    public enum Pagina {
+        USUARIO(0),
+        PERFIL(1),
+        CARONANTE(2),
+        CARONEIRO(3);
+
+        private final int index;
+
+        Pagina(int index) {
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return index;
         }
     }
 
@@ -1230,76 +1439,6 @@ public class JanelaUsuario extends JFrame {
         public List<Carona> getList() {
             return this.caronas;
         }
-    }
-
-    class EntrarCaronaPopup implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (tabelaCaronasDisponiveis.getSelectedRow() < 0) {
-                JOptionPane.showMessageDialog(
-                        JanelaUsuario.this,
-                        "É necessário selecionar uma carona para entrar!",
-                        "Erro!",
-                        JOptionPane.ERROR_MESSAGE
-                );
-                return;
-            }
-
-            JOptionPane.showMessageDialog(
-                    JanelaUsuario.this,
-                    usuario.getPerfil().getCaroneiro().pedirCarona(
-                            modeloCaronasDisponiveis.getObject(tabelaCaronasDisponiveis.getSelectedRow())) ?
-                            "Entrou na carona com sucesso!" :
-                            "Carona recusou sua entrada",
-                    "Situação de carona",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-        }
-    }
-
-    class SairCaronaPopup implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (tabelaCaronasConcluidas.getSelectedRow() < 0) {
-                JOptionPane.showMessageDialog(
-                        JanelaUsuario.this,
-                        "É necessário selecionar uma carona para sair!",
-                        "Erro!",
-                        JOptionPane.ERROR_MESSAGE
-                );
-                return;
-            }
-
-            JOptionPane.showMessageDialog(
-                    JanelaUsuario.this,
-                    modeloCaronaConcluidas.getObject(tabelaCaronasConcluidas.getSelectedRow())
-                            .removerCaroneiro(usuario.getPerfil().getCaroneiro()) ?
-                            "Saiu da carona com sucesso!" :
-                            "Erro ao sair da carona",
-                    "Situação de carona",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-        }
-    }
-
-    public enum Pagina {
-        USUARIO(0),
-        PERFIL(1),
-        CARONANTE(2),
-        CARONEIRO(3);
-
-        private final int index;
-
-        Pagina(int index) {
-            this.index = index;
-        }
-
-        public int getIndex() {
-            return index;
-        }
-
     }
 
     /**

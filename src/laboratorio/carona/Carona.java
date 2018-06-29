@@ -1,6 +1,8 @@
 package laboratorio.carona;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import laboratorio.perfil.caronante.*;
@@ -151,7 +153,7 @@ public abstract class Carona {
         }
 
         /* Se adicionamos o método de graça, limpamos os outros métodos */
-        if(metodoPagamento == MetodoPagamento.GRATIS) {
+        if (metodoPagamento == MetodoPagamento.GRATIS) {
             metodoPagamentos.clear();
         }
 
@@ -172,9 +174,9 @@ public abstract class Carona {
     }
 
     public boolean atribuirNotaCaroneiro(int id, float avaliacao) {
-        for (CaronaCaroneiro cc : caroneiros) {
-            if (cc.getCaroneiro().getPerfil().getUsuario().getId() == id) {
-                cc.setAvaliacao(avaliacao);
+        for (CaronaCaroneiro caronaCaroneiro : caroneiros) {
+            if (caronaCaroneiro.getCaroneiro().getPerfil().getUsuario().getId() == id) {
+                caronaCaroneiro.setAvaliacao(avaliacao);
                 return true;
             }
         }
@@ -185,6 +187,11 @@ public abstract class Carona {
         if (caronante == null) return false;
         caronante.setAvaliacao(avaliacao);
         return true;
+    }
+
+    public List<Caroneiro> getCaroneiros() {
+        return Collections.unmodifiableList(
+                caroneiros.stream().map(CaronaCaroneiro::getCaroneiro).collect(Collectors.toList()));
     }
 
     public String toString(int numeroEspacos) {

@@ -11,9 +11,11 @@ import java.io.*;
 /*
  * Rafael Santos (186154)
  *
- * As funcionalidades "básicas" desse programa exigem uma construção muito trabalhosa. Tive dificuldade durante as
- * primeiras horas, porém agora só está um *ENORME* trabalho maçante.
+ * As funcionalidades "básicas" desse programa exigem uma construção MUITO trabalhosa. Tive dificuldade durante as
+ * primeiras horas, porém agora só está um *ENORME* trabalho maçante. ENORME TRABALHO MAÇANTE AAAAARGH
+ * Mais de mil linhas...
  *
+ * Observação:
  * A JanelaUsuario é a interface que atende todas as necessidades básicas exigidas no laboratório. Eu fiz a JanelaLogin
  * (que não era necessário no laboratório) antes dela, mas ficou razoavelmente curta.
  */
