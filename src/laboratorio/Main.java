@@ -18,6 +18,46 @@ import java.io.*;
  * Observação:
  * A JanelaUsuario é a interface que atende todas as necessidades básicas exigidas no laboratório. Eu fiz a JanelaLogin
  * (que não era necessário no laboratório) antes dela, mas ficou razoavelmente curta.
+ *
+ * Observação 2:
+ * Desculpem-me por utilizar JDK 10. Troquei as funções dos Collectors ao usar Stream para retornarem uma lista normal e
+ * (não utilizei Collectors#toUnmodifiableList)
+ *
+ * Questões:
+ * 1. Quais as principais diferenças entre Swing e AWT?
+ *  Swing é uma "plataforma" que controla os objetos AWT, propondo um desenvolvimento mais "sustentável" (não variando
+ *  com especificadades do sistema operacional) e de desenvolvimento mais rápido (por ter o suporte para eventos que
+ *  envolvem mouse, teclado, de janelas fechando e abrindo).
+ *
+ * 2. Qual a vantagem de se usar um RootPaneContainer?
+ *  O RootPaneContainer permite construir objetos de maior complexidade através de layouts e vários componentes ligados
+ *  a ele. Inclusive outros containers, o que auxilia a construção de uma interface consistente e escalável em diversos
+ *  sistemas diferentes.
+ *
+ * 3. Quando temos um JDialog visível o que ocorre com as outras janelas do sistema?
+ *  Elas se tornam desativadas (mesmo que não visualmente). Não é possível utilizar o JFrame "mãe" do JDialog.
+ *
+ * 4. Explique as diferenças entre BorderLayout, BoxLayout, FlowLayout e GridLayout. Quais deles você usou na criação
+ * das janelas? Por quê?
+ *  BorderLayout permite a construção de uma estrutura orientada pela posição na janela (sul, norte, centro, oeste,
+ *  leste).
+ *  FlowLayout distribui horizontalmente os componentes. BoxLayout, verticalmente.
+ *  GridLayout divide a janela em uma grid que tem dimensão variável mas número de colunas e linhas constante (constante
+ *  na execução).
+ *
+ *
+ * 5. Explique o que é uma função callback. Como são implementadas em Java? Não use código, explique com suas palavras.
+ *  Uma função callback é um pedaço de código que será executado em algum momento. Em Java, pode ser feito com Listeners
+ *  (muito usado em Swing), em Runnables para threads, com reflection e anotations (o método é marcado com uma anotação
+ *  e em runtime é executado através de reflection, o que permite uma construção mais escalável inclusive com plugins -
+ *  programas que são ligados ao programa principal)
+ *
+ * 6. Explique com suas palavras como cada nível do framework MVC seria tratado na sua implementação do sistema.
+ *  O controller e a View infelizmente estão bastante misturados nas classes de janela. O modelo é em grande parte o que
+ *  fizemos durante o semestre, como Usuario e Grupo, mas também o que foi feito nos últimos laboratórios, como
+ *  GerenciadorUsuario e GerenciadorGrupo, fazendo uso dos dados, sem dirigir a interface gráfica mas sendo dirigido
+ *  pelo controller.
+ *
  */
 public class Main {
 
@@ -25,8 +65,6 @@ public class Main {
 
     private final GerenciadorUsuario gerenciadorUsuario;
     private final GerenciadorGrupo gerenciadorGrupo;
-
-    private Usuario usuario = null;
 
     private JFrame janelaPrincipal = null;
 
@@ -88,11 +126,9 @@ public class Main {
      */
     public void efetuarLogin(Usuario usuario) {
         if (usuario == null) {
-            this.usuario = null;
             // Criamos a interface de login novamente
             setJanelaPrincipal(new JanelaLogin());
         } else {
-            this.usuario = usuario;
             // Criamos a interface de um usuário logado
             setJanelaPrincipal(new JanelaUsuario(usuario, JanelaUsuario.Pagina.USUARIO));
         }
