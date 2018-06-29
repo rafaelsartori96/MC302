@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import laboratorio.carona.CaronaPrivada;
+import laboratorio.carona.CaronaPublica;
 import laboratorio.usuario.Usuario;
 
 public class GrupoPrivado extends Grupo {
@@ -49,6 +50,15 @@ public class GrupoPrivado extends Grupo {
 
     @Override
     public List<Usuario> getMembros() {
-        return this.membros.stream().map(GrupoUsuario::getUsuario).collect(Collectors.toUnmodifiableList());
+        return Collections.unmodifiableList(
+                this.membros.stream().map(GrupoUsuario::getUsuario).collect(Collectors.toList()));
+    }
+
+    public List<CaronaPrivada> getCaronas() {
+        return Collections.unmodifiableList(caronas);
+    }
+
+    public void adicionarCarona(CaronaPrivada caronaPrivada) {
+        this.caronas.add(caronaPrivada);
     }
 }

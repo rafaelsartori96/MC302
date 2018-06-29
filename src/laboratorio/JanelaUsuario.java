@@ -19,8 +19,13 @@ public class JanelaUsuario extends JFrame {
     private final Usuario usuario;
     private final JTabbedPane painel;
 
-    private ModeloTabela<Carona> modeloCaronas;
-    private JTable tabelaCaronas;
+    private ModeloCarona modeloCaronaConcluidas;
+    private JTable tabelaCaronasConcluidas;
+    private ModeloCarona modeloCaronasDisponiveis;
+    private JTable tabelaCaronasDisponiveis;
+
+    private ModeloCarona modeloCaronaCaronante;
+    private JTable tabelaCaronasCaronante;
 
     private ModeloTabela<Grupo> modeloGrupos;
     private JTable tabelaGrupos;
@@ -267,66 +272,17 @@ public class JanelaUsuario extends JFrame {
             painelTabela.setLayout(new BorderLayout());
 
             /* Criamos a tabela de carona */
-            modeloCaronas = new ModeloTabela<>() {
-                @Override
-                public int getColumnCount() {
-                    return 6;
-                }
-
-                @Override
-                public String getColumnName(int column) {
-                    switch (column) {
-                        case 0:
-                            return "Encontro";
-                        case 1:
-                            return "Destino";
-                        case 2:
-                            return "Hora e data";
-                        case 3:
-                            return "Assentos disponíveis";
-                        case 4:
-                            return "Tipo";
-                        case 5:
-                            return "Valor";
-                        default:
-                            return null;
-                    }
-                }
-
-                @Override
-                public Object getColumn(Carona object, int column) {
-                    switch (column) {
-                        case 0:
-                            return object.getLatitudeEncontro() + ", " + object.getLongitudeEncontro();
-                        case 1:
-                            return object.getLatitudeDestino() + ", " + object.getLongitudeDestino();
-                        case 2:
-                            return object.getHoraDiaEncontro();
-                        case 3:
-                            return object.getAssentosDisponiveis();
-                        case 4:
-                            return object.getTipo().toString();
-                        case 5:
-                            return object.getValor();
-                        default:
-                            return null;
-                    }
-                }
-
-                @Override
-                public List<Carona> getList() {
-                    return caronante.getCaronas();
-                }
-            };
-            tabelaCaronas = new JTable(modeloCaronas);
-            tabelaCaronas.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+            modeloCaronaCaronante = new ModeloCarona(caronante.getCaronas());
+            tabelaCaronasCaronante = new JTable(modeloCaronaCaronante);
+            tabelaCaronasCaronante.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
             /* Adicionamos o header da tabela */
-            painelTabela.add(tabelaCaronas.getTableHeader(), BorderLayout.NORTH);
+            painelTabela.add(tabelaCaronasCaronante.getTableHeader(), BorderLayout.NORTH);
             JScrollPane scrollTabelaCarona = new JScrollPane(
-                    tabelaCaronas,
+                    tabelaCaronasCaronante,
                     JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                     JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
             );
+            scrollTabelaCarona.setPreferredSize(new Dimension(400, 200));
             /* Adicionamos a tabela com um scroll massa */
             painelTabela.add(scrollTabelaCarona, BorderLayout.CENTER);
 
@@ -401,6 +357,84 @@ public class JanelaUsuario extends JFrame {
                             caroneiro.getCartaoDeCredito()),
                     "Paga em dinheiro: " + (caroneiro.isPagamentoEmDinheiro() ? "sim" : "não")
             ));
+
+            /* Adicionamos a lista de caronas que o caronante está */
+            JPanel painelCaronasConcluidas = new JPanel();
+            painelCaronasConcluidas.setLayout(new BoxLayout(painelCaronasConcluidas, BoxLayout.Y_AXIS));
+
+            JPanel painelTabelaConcluidas = new JPanel();
+            painelTabelaConcluidas.setLayout(new BorderLayout());
+
+            /* Criamos a tabela de carona */
+            modeloCaronaConcluidas = new ModeloCarona(caroneiro.getCaronas());
+            tabelaCaronasConcluidas = new JTable(modeloCaronaConcluidas);
+            tabelaCaronasConcluidas.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+            /* Adicionamos o header da tabela */
+            painelTabelaConcluidas.add(tabelaCaronasConcluidas.getTableHeader(), BorderLayout.NORTH);
+            JScrollPane scrollTabelaCaronasConcluidas = new JScrollPane(
+                    tabelaCaronasConcluidas,
+                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+            );
+            scrollTabelaCaronasConcluidas.setPreferredSize(new Dimension(400, 200));
+            /* Adicionamos a tabela com um scroll massa */
+            painelTabelaConcluidas.add(scrollTabelaCaronasConcluidas, BorderLayout.CENTER);
+
+            /* Adicionamos toda a tabela */
+            painelCaronasConcluidas.add(painelTabelaConcluidas);
+
+            /* Botões das caronas concluídas */
+            JPanel painelBotoesConcluidas = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+            JButton avaliarCaronante = new JButton("Avaliar caronante");
+            avaliarCaronante.addActionListener(new AvaliarCaronantePopup());
+            painelBotoesConcluidas.add(avaliarCaronante);
+
+            JButton sairCarona = new JButton("Sair da carona");
+            sairCarona.addActionListener(new SairCaronaPopup());
+            painelBotoesConcluidas.add(sairCarona);
+
+            painelCaronasConcluidas.add(painelBotoesConcluidas);
+
+            /* Adicionamos as informações das caronas concluídas */
+            painelCaroneiro.add(painelCaronasConcluidas);
+
+            /* Adicionamos a lista de caronas que o caronante pode entrar */
+            JPanel painelCaronasDisponiveis = new JPanel();
+            painelCaronasDisponiveis.setLayout(new BoxLayout(painelCaronasDisponiveis, BoxLayout.Y_AXIS));
+
+            JPanel painelTabelaDisponiveis = new JPanel();
+            painelTabelaDisponiveis.setLayout(new BorderLayout());
+
+            /* Criamos a tabela de carona */
+            modeloCaronasDisponiveis = new ModeloCarona(caroneiro.getCaronasDisponiveis());
+            tabelaCaronasDisponiveis = new JTable(modeloCaronasDisponiveis);
+            tabelaCaronasDisponiveis.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+            /* Adicionamos o header da tabela */
+            painelTabelaDisponiveis.add(tabelaCaronasDisponiveis.getTableHeader(), BorderLayout.NORTH);
+            JScrollPane scrollTabelaCaronaDisponiveis = new JScrollPane(
+                    tabelaCaronasDisponiveis,
+                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+            );
+            scrollTabelaCaronaDisponiveis.setPreferredSize(new Dimension(400, 200));
+            /* Adicionamos a tabela com um scroll massa */
+            painelTabelaDisponiveis.add(scrollTabelaCaronaDisponiveis, BorderLayout.CENTER);
+
+            /* Adicionamos toda a tabela */
+            painelCaronasDisponiveis.add(painelTabelaDisponiveis);
+
+            /* Botões das caronas concluídas */
+            JPanel painelBotoesDisponiveis = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+            JButton entrarEmCarona = new JButton("Entrar em carona");
+            entrarEmCarona.addActionListener(new EntrarCaronaPopup());
+            painelBotoesDisponiveis.add(entrarEmCarona);
+
+            painelCaronasDisponiveis.add(painelBotoesDisponiveis);
+
+            /* Adicionamos as informações das caronas concluídas */
+            painelCaroneiro.add(painelCaronasDisponiveis);
 
             /* Criamos o painel de botões de controle de perfil */
             JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -815,11 +849,11 @@ public class JanelaUsuario extends JFrame {
 
             Carona carona = null;
             if (modificar) {
-                if (tabelaCaronas.getSelectedRow() < 0) {
+                if (tabelaCaronasCaronante.getSelectedRow() < 0) {
                     HelperDialog.popupErro("Selecione uma carona!", "É necessário selecionar uma carona!");
                     return;
                 }
-                carona = modeloCaronas.getObject(tabelaCaronas.getSelectedRow());
+                carona = modeloCaronaCaronante.getObject(tabelaCaronasCaronante.getSelectedRow());
             }
 
             JCheckBox caronaPublica = null;
@@ -1115,21 +1149,139 @@ public class JanelaUsuario extends JFrame {
 
     }
 
-    /**
-     * Cria um painel com todas as linhas
-     *
-     * @param textos linhas de texto
-     * @return um painel que contém todos os textos
-     */
-    private static JPanel criarPaineisTexto(String... textos) {
-        JPanel painelEsquerda = new JPanel(new BorderLayout());
-        JPanel linhas = new JPanel();
-        linhas.setLayout(new BoxLayout(linhas, BoxLayout.Y_AXIS));
-        for (String texto : textos) {
-            linhas.add(new JLabel(texto));
+    class AvaliarCaronantePopup implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (tabelaCaronasConcluidas.getSelectedRow() < 0) {
+                JOptionPane.showMessageDialog(
+                        JanelaUsuario.this,
+                        "É necessário selecionar uma carna da lista de caronas que possui",
+                        "Erro!",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            Carona carona = modeloCaronaConcluidas.getObject(tabelaCaronasConcluidas.getSelectedRow());
+            try {
+                carona.atribuirNotaCaronante(Float.valueOf(JOptionPane.showInputDialog("Entre a nota:")));
+            } catch (NumberFormatException e1) {
+                JOptionPane.showMessageDialog(
+                        JanelaUsuario.this, "O número deve ser inteiro", "Erro!", JOptionPane.ERROR_MESSAGE);
+            }
         }
-        painelEsquerda.add(linhas);
-        return painelEsquerda;
+    }
+
+    class ModeloCarona extends ModeloTabela<Carona> {
+
+        private final List<Carona> caronas;
+
+        ModeloCarona(List<Carona> caronas) {
+            this.caronas = caronas;
+        }
+
+        @Override
+        public int getColumnCount() {
+            return 6;
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            switch (column) {
+                case 0:
+                    return "Encontro";
+                case 1:
+                    return "Destino";
+                case 2:
+                    return "Hora e data";
+                case 3:
+                    return "Assentos disponíveis";
+                case 4:
+                    return "Tipo";
+                case 5:
+                    return "Valor";
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public Object getColumn(Carona object, int column) {
+            switch (column) {
+                case 0:
+                    return object.getLatitudeEncontro() + ", " + object.getLongitudeEncontro();
+                case 1:
+                    return object.getLatitudeDestino() + ", " + object.getLongitudeDestino();
+                case 2:
+                    return object.getHoraDiaEncontro();
+                case 3:
+                    return object.getAssentosDisponiveis();
+                case 4:
+                    return object.getTipo().toString();
+                case 5:
+                    return object.getValor();
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public List<Carona> getList() {
+            return this.caronas;
+        }
+    }
+
+    class EntrarCaronaPopup implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (tabelaCaronasDisponiveis.getSelectedRow() < 0) {
+                JOptionPane.showMessageDialog(
+                        JanelaUsuario.this,
+                        "É necessário selecionar uma carona para entrar!",
+                        "Erro!",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            JOptionPane.showMessageDialog(
+                    JanelaUsuario.this,
+                    usuario.getPerfil().getCaroneiro().pedirCarona(
+                            modeloCaronasDisponiveis.getObject(tabelaCaronasDisponiveis.getSelectedRow())) ?
+                            "Entrou na carona com sucesso!" :
+                            "Carona recusou sua entrada",
+                    "Situação de carona",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
+    }
+
+    class SairCaronaPopup implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (tabelaCaronasConcluidas.getSelectedRow() < 0) {
+                JOptionPane.showMessageDialog(
+                        JanelaUsuario.this,
+                        "É necessário selecionar uma carona para sair!",
+                        "Erro!",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            JOptionPane.showMessageDialog(
+                    JanelaUsuario.this,
+                    modeloCaronaConcluidas.getObject(tabelaCaronasConcluidas.getSelectedRow())
+                            .removerCaroneiro(usuario.getPerfil().getCaroneiro()) ?
+                            "Saiu da carona com sucesso!" :
+                            "Erro ao sair da carona",
+                    "Situação de carona",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
     }
 
     public enum Pagina {
@@ -1147,5 +1299,23 @@ public class JanelaUsuario extends JFrame {
         public int getIndex() {
             return index;
         }
+
+    }
+
+    /**
+     * Cria um painel com todas as linhas
+     *
+     * @param textos linhas de texto
+     * @return um painel que contém todos os textos
+     */
+    private static JPanel criarPaineisTexto(String... textos) {
+        JPanel painelEsquerda = new JPanel(new BorderLayout());
+        JPanel linhas = new JPanel();
+        linhas.setLayout(new BoxLayout(linhas, BoxLayout.Y_AXIS));
+        for (String texto : textos) {
+            linhas.add(new JLabel(texto));
+        }
+        painelEsquerda.add(linhas);
+        return painelEsquerda;
     }
 }

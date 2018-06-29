@@ -101,7 +101,8 @@ public class Usuario implements Salvavel {
     }
 
     public List<Grupo> getGrupos() {
-        return grupos.stream().map(GrupoUsuario::getGrupo).collect(Collectors.toUnmodifiableList());
+        return Collections.unmodifiableList(
+                grupos.stream().map(GrupoUsuario::getGrupo).collect(Collectors.toList()));
     }
 
     public void adicionarGrupo(GrupoPublico grupo) {
@@ -119,7 +120,7 @@ public class Usuario implements Salvavel {
             return;
         }
 
-        for (Iterator<GrupoUsuario> iterator = grupos.iterator(); iterator.hasNext();) {
+        for (Iterator<GrupoUsuario> iterator = grupos.iterator(); iterator.hasNext(); ) {
             GrupoUsuario grupoUsuario = iterator.next();
 
             if (grupoUsuario.getGrupo().getId() == id) {
@@ -131,7 +132,7 @@ public class Usuario implements Salvavel {
                 }
 
                 iterator.remove();
-                if(!grupoUsuario.getGrupo().removerMembro(this)) {
+                if (!grupoUsuario.getGrupo().removerMembro(this)) {
                     throw new SistemaCaronaException("O usuário não foi removido corretamente do grupo!");
                 }
                 return;

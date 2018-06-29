@@ -5,6 +5,9 @@ import java.util.*;
 import java.util.stream.*;
 
 import laboratorio.carona.Carona;
+import laboratorio.grupo.Grupo;
+import laboratorio.grupo.GrupoPrivado;
+import laboratorio.grupo.GrupoPublico;
 import laboratorio.perfil.Perfil;
 import laboratorio.perfil.caronante.*;
 import laboratorio.utilidades.*;
@@ -81,7 +84,8 @@ public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
     }
 
     public List<Carona> getCaronas() {
-        return caronas.stream().map(CaronaCaroneiro::getCarona).collect(Collectors.toUnmodifiableList());
+        return Collections.unmodifiableList(
+                caronas.stream().map(CaronaCaroneiro::getCarona).collect(Collectors.toList()));
     }
 
     public float getAvaliacao() {
@@ -147,5 +151,22 @@ public class Caroneiro implements Salvavel, Comparable<Caroneiro> {
         float somaAvaliacoes = inputStream.readFloat();
 
         return new Caroneiro(pagamentoEmDinheiro, cartaoDeCredito, avaliacoes, somaAvaliacoes);
+    }
+
+    public List<Carona> getCaronasDisponiveis() {
+        ArrayList<Carona> caronas = new ArrayList<>();
+
+        for (Grupo grupo : getPerfil().getUsuario().getGrupos()) {
+            if (grupo.getTipo() == Grupo.Tipo.PUBLICO) {
+                caronas.addAll(((GrupoPublico) grupo).getCaronas());
+            } else {
+                caronas.addAll(((GrupoPrivado) grupo).getCaronas());
+            }
+        }
+
+        // Removemos as caronas que estamos
+        caronas.removeAll(getCaronas());
+
+        return caronas;
     }
 }

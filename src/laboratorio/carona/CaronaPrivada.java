@@ -41,6 +41,7 @@ public class CaronaPrivada extends Carona {
     public boolean adicionarGrupo(GrupoPrivado grupo) {
         if (grupo.checarPresenca(getCaronante().getPerfil().getUsuario())) {
             grupos.add(grupo);
+            grupo.adicionarCarona(this);
             return true;
         }
         return false;

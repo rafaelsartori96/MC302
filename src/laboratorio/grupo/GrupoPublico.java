@@ -56,6 +56,15 @@ public class GrupoPublico extends Grupo {
 
     @Override
     public List<Usuario> getMembros() {
-        return this.membros.stream().map(GrupoUsuario::getUsuario).collect(Collectors.toUnmodifiableList());
+        return Collections.unmodifiableList(
+                this.membros.stream().map(GrupoUsuario::getUsuario).collect(Collectors.toList()));
+    }
+
+    public List<CaronaPublica> getCaronas() {
+        return Collections.unmodifiableList(caronas);
+    }
+
+    public void adicionarCarona(CaronaPublica caronaPublica) {
+        this.caronas.add(caronaPublica);
     }
 }

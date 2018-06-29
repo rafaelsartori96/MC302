@@ -141,7 +141,8 @@ public class Caronante implements Salvavel, Comparable<Caronante> {
     }
 
     public List<Carona> getCaronas() {
-        return caronas.stream().map(CaronaCaronante::getCarona).collect(Collectors.toUnmodifiableList());
+        return Collections.unmodifiableList(
+                caronas.stream().map(CaronaCaronante::getCarona).collect(Collectors.toList()));
     }
 
     public float getAvaliacao() {
